@@ -499,6 +499,37 @@ function updateSuggestions() {
     });
 }
 
+// Sample cache
+const sampleCache = {};
+
+async function loadSample(ctx, url) {
+    if (sampleCache[url]) return sampleCache[url];
+
+    const response = await fetch(url);
+    const arrayBuffer = await response.arrayBuffer();
+    const audioBuffer = await ctx.decodeAudioData(arrayBuffer);
+    sampleCache[url] = audioBuffer;
+    return audioBuffer;
+}
+
+// Create a sample-based layer (loads audio file, loops it)
+function createSampleLayer(sampleUrl) {
+    return async (ctx, dest) => {
+        const gain = ctx.createGain();
+        gain.gain.value = 0;
+        gain.connect(dest);
+
+        const buffer = await loadSample(ctx, sampleUrl);
+        const source = ctx.createBufferSource();
+        source.buffer = buffer;
+        source.loop = true;
+        source.connect(gain);
+        source.start();
+
+        return { source, gain };
+    };
+}
+
 // Utilities
 function createNoise(ctx) {
     const bufferSize = ctx.sampleRate * 2;
@@ -549,21 +580,38 @@ function initAudio() {
     });
 }
 
-// Lazy-init a single layer's audio nodes
-function initLayer(layerId) {
+// Lazy-init a single layer's audio nodes (supports async for sample layers)
+async function initLayer(layerId) {
     const state = layerStates[layerId];
-    if (!state || state.initialized) return;
+    if (!state || state.initialized || state.loading) return;
     const layerDef = LAYERS.find(l => l.id === layerId);
     if (!layerDef) return;
-    const nodes = layerDef.create(audioCtx, masterGain);
-    state.source = nodes.source;
-    state.gain = nodes.gain;
-    state.extras = nodes.extras || null;
-    state.initialized = true;
-    // Start at zero
-    if (state.gain) {
-        state.gain.gain.setValueAtTime(0, audioCtx.currentTime);
+
+    state.loading = true;
+
+    // Show loading state on the card
+    const card = document.getElementById(`layer-${layerId}`);
+    if (card) card.classList.add('loading');
+
+    try {
+        const nodes = await layerDef.create(audioCtx, masterGain);
+        state.source = nodes.source;
+        state.gain = nodes.gain;
+        state.extras = nodes.extras || null;
+        state.initialized = true;
+        if (state.gain) {
+            state.gain.gain.setValueAtTime(0, audioCtx.currentTime);
+            // Apply the pending volume
+            if (state.volume > 0) {
+                state.gain.gain.linearRampToValueAtTime(state.volume * 0.15, audioCtx.currentTime + 0.2);
+            }
+        }
+    } catch(e) {
+        console.warn(`Failed to init layer ${layerId}:`, e);
     }
+
+    state.loading = false;
+    if (card) card.classList.remove('loading');
 }
 
 // Set layer volume (0-1)
