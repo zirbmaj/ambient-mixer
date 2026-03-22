@@ -115,30 +115,37 @@ body {
 .cat-header {
     font-family: 'Space Mono', monospace;
     font-size: 10px;
-    letter-spacing: 4px;
+    letter-spacing: 5px;
     color: var(--text-dim);
-    margin-bottom: 12px;
-    padding-bottom: 6px;
-    border-bottom: 1px solid var(--border);
+    margin-bottom: 14px;
+    padding-bottom: 8px;
+    border-bottom: none;
+    opacity: 0.6;
 }
 
 .layer-card {
     display: grid;
-    grid-template-columns: 32px 120px 1fr 40px;
+    grid-template-columns: 36px 120px 1fr 40px;
     align-items: center;
-    gap: 12px;
-    padding: 12px 16px;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    margin-bottom: 6px;
+    gap: 14px;
+    padding: 14px 18px;
+    background: linear-gradient(135deg, var(--bg-card) 0%, rgba(14, 14, 20, 0.8) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+    margin-bottom: 8px;
     transition: all 0.3s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.layer-card:hover {
+    background: linear-gradient(135deg, rgba(14, 14, 20, 0.9) 0%, rgba(20, 20, 32, 0.8) 100%);
+    border-color: rgba(255, 255, 255, 0.06);
 }
 
 .layer-card.active {
-    background: var(--bg-card-active);
-    border-color: rgba(122, 138, 106, 0.2);
-    box-shadow: 0 0 15px var(--accent-glow);
+    background: linear-gradient(135deg, var(--bg-card-active) 0%, rgba(20, 20, 32, 0.9) 100%);
+    border-color: rgba(122, 138, 106, 0.15);
+    box-shadow: 0 2px 12px var(--accent-glow), 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 .layer-card.hidden-layer {
@@ -188,6 +195,20 @@ body {
 .layer-icon {
     font-size: 18px;
     text-align: center;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--text-dim);
+    transition: all 0.3s;
+}
+
+.layer-card.active .layer-icon {
+    background: rgba(122, 138, 106, 0.1);
+    color: var(--accent);
 }
 
 .layer-name {
@@ -247,8 +268,8 @@ body {
     display: flex;
     align-items: center;
     gap: 20px;
-    padding: 16px 20px;
-    background: var(--bg-card);
+    padding: 18px 24px;
+    background: linear-gradient(135deg, var(--bg-card) 0%, rgba(14, 14, 20, 0.8) 100%);
     border: 1px solid var(--border);
     border-radius: 10px;
     margin-bottom: 32px;
