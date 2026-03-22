@@ -621,7 +621,12 @@ function uiClick() {
 
 function initAudio() {
     if (audioCtx) return;
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    try {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    } catch(e) {
+        console.warn('Web Audio API not supported');
+        return;
+    }
 
     const compressor = audioCtx.createDynamicsCompressor();
     compressor.threshold.value = -20;
@@ -1322,11 +1327,24 @@ function unlockAudio() {
     }
 }
 
+// Global error handler — don't let one bad layer crash the whole app
+window.addEventListener('error', (e) => {
+    console.warn('Drift caught an error:', e.message);
+});
+window.addEventListener('unhandledrejection', (e) => {
+    console.warn('Drift caught a promise rejection:', e.reason);
+    e.preventDefault();
+});
+
 // Init
-buildMixer();
-renderPresets();
-renderDefaultMixes();
-const hasMix = loadMixFromUrl();
-if (hasMix) {
-    document.querySelector('.tagline').textContent = 'someone shared a mix with you — click anywhere to listen';
+try {
+    buildMixer();
+    renderPresets();
+    renderDefaultMixes();
+    const hasMix = loadMixFromUrl();
+    if (hasMix) {
+        document.querySelector('.tagline').textContent = 'someone shared a mix with you — click anywhere to listen';
+    }
+} catch(e) {
+    console.warn('Drift init error:', e);
 }
