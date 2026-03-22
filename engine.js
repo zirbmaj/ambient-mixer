@@ -7,7 +7,7 @@ const LAYERS = [
     {
         id: 'rain',
         name: 'Rain',
-        icon: '🌧',
+        icon: '<svg viewBox="0 0 16 16" width="16" height="16"><path d="M4 3l-2 5M8 2l-2 6M12 3l-2 5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>',
         category: 'weather',
         type: 'sample',
         src: '/audio/rain.mp3',
@@ -29,7 +29,7 @@ const LAYERS = [
     {
         id: 'heavy-rain',
         name: 'Heavy Rain',
-        icon: '⛆',
+        icon: '<svg viewBox="0 0 16 16" width="16" height="16"><path d="M3 2l-2 6M6 1l-2 7M9 2l-2 6M12 1l-2 7M15 2l-2 6" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>',
         category: 'weather',
         type: 'sample',
         src: '/audio/heavy-rain.mp3',
@@ -51,7 +51,7 @@ const LAYERS = [
     {
         id: 'thunder',
         name: 'Thunder',
-        icon: '⛈',
+        icon: '<svg viewBox="0 0 16 16" width="16" height="16"><path d="M9 1L5 8h4l-3 7" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
         category: 'weather',
         type: 'sample',
         src: '/audio/thunder.mp3',
@@ -85,7 +85,7 @@ const LAYERS = [
     {
         id: 'wind',
         name: 'Wind',
-        icon: '💨',
+        icon: '<svg viewBox="0 0 16 16" width="16" height="16"><path d="M1 5h10a2 2 0 100-4M1 8h12a2 2 0 110 4M1 11h8a2 2 0 100 4" stroke="currentColor" stroke-width="1.2" fill="none" stroke-linecap="round"/></svg>',
         category: 'weather',
         type: 'synthesis',
         create: (ctx, dest) => {
@@ -105,7 +105,7 @@ const LAYERS = [
     {
         id: 'fire',
         name: 'Fireplace',
-        icon: '🔥',
+        icon: '<svg viewBox="0 0 16 16" width="16" height="16"><path d="M8 1C6 4 3 6 3 10a5 5 0 0010 0c0-4-3-6-5-9z" stroke="currentColor" stroke-width="1.2" fill="none"/></svg>',
         category: 'spaces',
         type: 'sample',
         src: '/audio/fire.mp3',
@@ -143,7 +143,7 @@ const LAYERS = [
     {
         id: 'vinyl',
         name: 'Vinyl Crackle',
-        icon: '💿',
+        icon: '<svg viewBox="0 0 16 16" width="16" height="16"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.2" fill="none"/><circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="1" fill="none"/></svg>',
         category: 'spaces',
         type: 'synthesis',
         create: (ctx, dest) => {
@@ -186,7 +186,7 @@ const LAYERS = [
     {
         id: 'cafe',
         name: 'Cafe',
-        icon: '☕',
+        icon: '<svg viewBox="0 0 16 16" width="16" height="16"><path d="M2 5h9v6a3 3 0 01-3 3H5a3 3 0 01-3-3V5zM11 6h1.5a2 2 0 010 4H11" stroke="currentColor" stroke-width="1.2" fill="none" stroke-linecap="round"/></svg>',
         category: 'spaces',
         type: 'sample',
         src: '/audio/cafe.mp3',
@@ -217,7 +217,7 @@ const LAYERS = [
     {
         id: 'crickets',
         name: 'Crickets',
-        icon: '🦗',
+        icon: '<svg viewBox="0 0 16 16" width="16" height="16"><path d="M3 12c2-3 4-5 5-8M8 12c1-2 2-4 3-6M13 11c0-2 0-3-1-5" stroke="currentColor" stroke-width="1.2" fill="none" stroke-linecap="round"/></svg>',
         category: 'nature',
         type: 'sample',
         src: '/audio/crickets.mp3',
@@ -257,7 +257,7 @@ const LAYERS = [
     {
         id: 'waves',
         name: 'Ocean Waves',
-        icon: '🏖',
+        icon: '<svg viewBox="0 0 16 16" width="16" height="16"><path d="M1 8c2-3 4-3 6 0s4 3 6 0M1 12c2-3 4-3 6 0s4 3 6 0" stroke="currentColor" stroke-width="1.2" fill="none" stroke-linecap="round"/></svg>',
         category: 'nature',
         type: 'sample',
         src: '/audio/waves.mp3',
@@ -286,7 +286,7 @@ const LAYERS = [
     {
         id: 'drone',
         name: 'Deep Drone',
-        icon: '🎵',
+        icon: '<svg viewBox="0 0 16 16" width="16" height="16"><ellipse cx="8" cy="8" rx="7" ry="3" stroke="currentColor" stroke-width="1.2" fill="none"/></svg>',
         category: 'textures',
         type: 'synthesis',
         create: (ctx, dest) => {
@@ -309,7 +309,7 @@ const LAYERS = [
     {
         id: 'brown-noise',
         name: 'Brown Noise',
-        icon: '🟤',
+        icon: '<svg viewBox="0 0 16 16" width="16" height="16"><path d="M1 8h2l1-3 2 6 2-5 2 4 1-2h4" stroke="currentColor" stroke-width="1.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
         category: 'textures',
         type: 'synthesis',
         create: (ctx, dest) => {
@@ -337,7 +337,7 @@ const LAYERS = [
     {
         id: 'white-noise',
         name: 'White Noise',
-        icon: '⬜',
+        icon: '<svg viewBox="0 0 16 16" width="16" height="16"><path d="M1 8h1l1-4 1 6 1-5 1 7 1-6 1 4 1-3 1 5 1-4 1 2h1" stroke="currentColor" stroke-width="1" fill="none" stroke-linejoin="round"/></svg>',
         category: 'textures',
         type: 'synthesis',
         create: (ctx, dest) => {
@@ -353,7 +353,7 @@ const LAYERS = [
     {
         id: 'train',
         name: 'Train Cabin',
-        icon: '🚂',
+        icon: '<svg viewBox="0 0 16 16" width="16" height="16"><rect x="3" y="2" width="10" height="10" rx="2" stroke="currentColor" stroke-width="1.2" fill="none"/><line x1="3" y1="8" x2="13" y2="8" stroke="currentColor" stroke-width="1"/><circle cx="5.5" cy="14" r="1" fill="currentColor"/><circle cx="10.5" cy="14" r="1" fill="currentColor"/></svg>',
         category: 'spaces',
         type: 'sample',
         src: '/audio/train.mp3',
@@ -392,7 +392,7 @@ const LAYERS = [
     {
         id: 'birds',
         name: 'Forest Birds',
-        icon: '🐦',
+        icon: '<svg viewBox="0 0 16 16" width="16" height="16"><path d="M1 8c2-3 4-2 5 0M10 5c2-3 4-2 5 0M4 12c2-2 3-2 4 0" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>',
         category: 'nature',
         type: 'sample',
         src: '/audio/birds.mp3',
@@ -433,7 +433,7 @@ const LAYERS = [
     {
         id: 'leaves',
         name: 'Leaves Rustling',
-        icon: '🍃',
+        icon: '<svg viewBox="0 0 16 16" width="16" height="16"><path d="M3 13C3 7 8 2 14 2c0 6-5 11-11 11zM3 13c3-3 6-5 11-11" stroke="currentColor" stroke-width="1.2" fill="none" stroke-linecap="round"/></svg>',
         category: 'nature',
         type: 'sample',
         src: '/audio/leaves.mp3',
@@ -462,7 +462,7 @@ const LAYERS = [
     {
         id: 'snow',
         name: 'Snow Silence',
-        icon: '❄',
+        icon: '<svg viewBox="0 0 16 16" width="16" height="16"><circle cx="4" cy="4" r="1.2" fill="currentColor" opacity="0.5"/><circle cx="11" cy="6" r="1" fill="currentColor" opacity="0.4"/><circle cx="7" cy="10" r="1.2" fill="currentColor" opacity="0.6"/><circle cx="13" cy="12" r="0.8" fill="currentColor" opacity="0.3"/></svg>',
         category: 'weather',
         type: 'synthesis',
         create: (ctx, dest) => {
