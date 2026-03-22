@@ -255,18 +255,20 @@ body {
 }
 
 .layer-card.active .layer-slider::-webkit-slider-thumb {
-    animation: thumbBob 2s ease-in-out infinite;
+    animation: thumbBob 1.5s ease-in-out infinite;
+    box-shadow: 0 0 8px var(--accent-glow);
 }
 
 .layer-card.active .layer-slider:hover::-webkit-slider-thumb,
 .layer-card.active .layer-slider:active::-webkit-slider-thumb {
     animation: none;
-    transform: translateY(0);
+    transform: translateY(0) scale(1.3);
+    box-shadow: 0 0 12px var(--accent-glow);
 }
 
 @keyframes thumbBob {
-    0%, 100% { transform: translateY(-2px); }
-    50% { transform: translateY(2px); }
+    0%, 100% { transform: translateY(-5px); }
+    50% { transform: translateY(5px); }
 }
 
 .layer-slider::-webkit-slider-thumb {
