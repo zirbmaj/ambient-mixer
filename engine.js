@@ -702,9 +702,54 @@ document.getElementById('master-volume').addEventListener('input', (e) => {
 document.getElementById('save-preset').addEventListener('click', savePreset);
 document.getElementById('share-btn').addEventListener('click', shareMix);
 
+// Default mixes — curated starting points
+const DEFAULT_MIXES = [
+    {
+        name: "rainy cafe",
+        levels: { rain: 60, cafe: 45, vinyl: 20 },
+    },
+    {
+        name: "deep focus",
+        levels: { 'brown-noise': 70, rain: 25 },
+    },
+    {
+        name: "midnight train",
+        levels: { train: 65, rain: 30, drone: 15 },
+    },
+    {
+        name: "sunday morning",
+        levels: { birds: 50, leaves: 30, wind: 20 },
+    },
+    {
+        name: "winter cabin",
+        levels: { fire: 70, snow: 40, wind: 25 },
+    },
+    {
+        name: "ocean at night",
+        levels: { waves: 75, crickets: 30, drone: 10 },
+    },
+];
+
+function renderDefaultMixes() {
+    const section = document.getElementById('default-mixes');
+    if (!section) return;
+    DEFAULT_MIXES.forEach(mix => {
+        const div = document.createElement('div');
+        div.className = 'preset-item';
+        const layerCount = Object.keys(mix.levels).length;
+        div.innerHTML = `
+            <span class="preset-name">${mix.name}</span>
+            <span class="preset-meta">${layerCount} layer${layerCount !== 1 ? 's' : ''}</span>
+        `;
+        div.addEventListener('click', () => loadPreset(mix.levels));
+        section.appendChild(div);
+    });
+}
+
 // Init
 buildMixer();
 renderPresets();
+renderDefaultMixes();
 const hasMix = loadMixFromUrl();
 if (hasMix) {
     document.querySelector('.tagline').textContent = 'someone shared a mix with you — click anywhere to listen';
