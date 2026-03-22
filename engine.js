@@ -1154,6 +1154,21 @@ document.getElementById('master-volume').addEventListener('input', (e) => {
 document.getElementById('save-preset').addEventListener('click', savePreset);
 document.getElementById('share-btn').addEventListener('click', shareMix);
 
+// Subtle share nudge after 30 seconds of active mixing
+let mixStartTime = null;
+let shareNudged = false;
+setInterval(() => {
+    const hasActive = Object.values(layerStates).some(s => s.active);
+    if (hasActive && !mixStartTime) mixStartTime = Date.now();
+    if (!hasActive) { mixStartTime = null; shareNudged = false; }
+
+    if (mixStartTime && !shareNudged && Date.now() - mixStartTime > 30000) {
+        const btn = document.getElementById('share-btn');
+        if (btn) btn.classList.add('nudge');
+        shareNudged = true;
+    }
+}, 5000);
+
 // Default mixes — curated starting points
 const DEFAULT_MIXES = [
     {

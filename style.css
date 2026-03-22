@@ -406,6 +406,16 @@ body {
     color: var(--text);
 }
 
+.preset-btn.nudge {
+    animation: shareNudge 2s ease-in-out infinite;
+    border-color: var(--accent);
+}
+
+@keyframes shareNudge {
+    0%, 100% { box-shadow: 0 0 4px var(--accent-glow); }
+    50% { box-shadow: 0 0 16px var(--accent-glow); }
+}
+
 /* Presets */
 .presets-section {
     margin-bottom: 40px;
