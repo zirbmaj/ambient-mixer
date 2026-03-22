@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drift — ambient sound mixer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <canvas id="viz-canvas"></canvas>
+
+    <div class="app">
+        <header class="header">
+            <h1 class="logo">DRIFT</h1>
+            <p class="tagline">ambient sound mixer</p>
+        </header>
+
+        <div class="mixer-grid" id="mixer-grid">
+            <!-- Layers injected by JS -->
+        </div>
+
+        <div class="controls-bar">
+            <button class="master-toggle" id="master-toggle" title="Play/Pause all">
+                <span id="toggle-icon">▶</span>
+            </button>
+            <div class="master-volume">
+                <label class="vol-label">MASTER</label>
+                <input type="range" id="master-volume" min="0" max="100" value="70" class="vol-slider">
+            </div>
+            <div class="preset-controls">
+                <button class="preset-btn" id="save-preset" title="Save mix">Save Mix</button>
+                <button class="preset-btn" id="share-btn" title="Share mix">Share</button>
+            </div>
+        </div>
+
+        <div class="presets-section" id="presets-section">
+            <h3 class="section-header">Your Mixes</h3>
+            <div class="presets-list" id="presets-list"></div>
+        </div>
+
+        <footer class="footer">
+            <p class="footer-text">DRIFT — from the makers of <a href="https://static-fm.vercel.app" target="_blank">Static FM</a></p>
+        </footer>
+    </div>
+
+    <script src="engine.js"></script>
+</body>
+</html>
