@@ -66,6 +66,43 @@ body {
     font-weight: 300;
 }
 
+/* Now Playing Bar */
+.now-playing-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 16px;
+    min-height: 40px;
+    transition: opacity 0.3s;
+}
+
+.now-playing-bar.empty {
+    opacity: 0.4;
+}
+
+.np-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 3px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    flex-shrink: 0;
+}
+
+.np-layers {
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-weight: 300;
+}
+
+.np-layers.active {
+    color: var(--accent);
+}
+
 /* Mixer Grid */
 .mixer-grid {
     margin-bottom: 32px;

@@ -499,6 +499,24 @@ function updateSuggestions() {
     });
 }
 
+// Now Playing indicator
+function updateNowPlaying() {
+    const bar = document.getElementById('now-playing-bar');
+    const label = document.getElementById('np-layers');
+    if (!bar || !label) return;
+
+    const active = LAYERS.filter(l => layerStates[l.id]?.active);
+    if (active.length === 0) {
+        label.textContent = 'nothing yet';
+        label.classList.remove('active');
+        bar.classList.add('empty');
+    } else {
+        label.textContent = active.map(l => l.name.toLowerCase()).join(' + ');
+        label.classList.add('active');
+        bar.classList.remove('empty');
+    }
+}
+
 // Sample cache
 const sampleCache = {};
 
@@ -768,6 +786,7 @@ function buildMixer() {
                 }
                 wasActive = isActive;
                 updateSuggestions();
+                updateNowPlaying();
             });
 
             section.appendChild(card);
