@@ -1,0 +1,16 @@
+{
+    "name": "Drift — Ambient Sound Mixer",
+    "short_name": "Drift",
+    "description": "Layer ambient sounds to build your perfect atmosphere",
+    "start_url": "/app.html",
+    "display": "standalone",
+    "background_color": "#08080c",
+    "theme_color": "#08080c",
+    "icons": [
+        {
+            "src": "/favicon.svg",
+            "sizes": "any",
+            "type": "image/svg+xml"
+        }
+    ]
+}
