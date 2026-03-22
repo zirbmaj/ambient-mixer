@@ -303,6 +303,26 @@ body {
     color: var(--text-secondary);
 }
 
+.layer-mute {
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    font-size: 12px;
+    cursor: pointer;
+    padding: 4px;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.layer-card:hover .layer-mute,
+.layer-card.active .layer-mute {
+    opacity: 0.5;
+}
+
+.layer-card.active .layer-mute:hover {
+    opacity: 1;
+}
+
 /* Controls Bar */
 .controls-bar {
     display: flex;

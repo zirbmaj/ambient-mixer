@@ -956,7 +956,27 @@ function buildLayerCard(layer, parent) {
                 min="0" max="100" value="0" />
         </div>
         <div class="layer-val" id="val-${layer.id}">0%</div>
+        <button class="layer-mute" title="Mute/unmute">◉</button>
     `;
+
+    // Mute toggle — silence without losing volume level
+    let savedVolume = 0;
+    card.querySelector('.layer-mute').addEventListener('click', (e) => {
+        e.stopPropagation();
+        const slider = card.querySelector('.layer-slider');
+        const current = parseInt(slider.value);
+        if (current > 0) {
+            savedVolume = current;
+            slider.value = 0;
+            slider.dispatchEvent(new Event('input'));
+            card.querySelector('.layer-mute').style.opacity = '0.3';
+        } else if (savedVolume > 0) {
+            slider.value = savedVolume;
+            slider.dispatchEvent(new Event('input'));
+            card.querySelector('.layer-mute').style.opacity = '1';
+        }
+        uiTick();
+    });
 
     // Animate waveform (real audio data when available, fallback to synthetic)
     const canvas = card.querySelector('.wave-canvas');
