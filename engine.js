@@ -1114,6 +1114,18 @@ function loadMixFromUrl() {
     if (!mix) return false;
     try {
         pendingMixLevels = JSON.parse(atob(mix));
+
+        // Show mix preview on the start overlay
+        const startText = document.querySelector('.start-text');
+        if (startText && pendingMixLevels) {
+            const layerNames = Object.keys(pendingMixLevels)
+                .map(id => {
+                    const l = LAYERS.find(l => l.id === id);
+                    return l ? l.name.toLowerCase() : id;
+                })
+                .join(' + ');
+            startText.textContent = 'tap to play: ' + layerNames;
+        }
         return true;
     } catch {
         return false;
