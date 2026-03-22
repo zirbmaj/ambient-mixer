@@ -1035,9 +1035,29 @@ function getPresets() {
     } catch { return []; }
 }
 
+function generateMixName() {
+    const active = LAYERS.filter(l => {
+        const slider = document.getElementById(`slider-${l.id}`);
+        return slider && parseInt(slider.value) > 0;
+    }).map(l => l.name.toLowerCase());
+
+    if (active.length === 0) return 'empty mix';
+
+    const h = new Date().getHours();
+    let timeLabel;
+    if (h >= 23 || h < 5) timeLabel = 'late night';
+    else if (h >= 5 && h < 12) timeLabel = 'morning';
+    else if (h >= 12 && h < 17) timeLabel = 'afternoon';
+    else if (h >= 17 && h < 20) timeLabel = 'evening';
+    else timeLabel = 'night';
+
+    const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+    const day = days[new Date().getDay()];
+
+    return active.join(' + ') + ' · ' + day + ' ' + timeLabel;
+}
+
 function savePreset() {
-    const name = prompt('Name your mix:');
-    if (!name) return;
     const levels = {};
     LAYERS.forEach(layer => {
         const slider = document.getElementById(`slider-${layer.id}`);
@@ -1045,11 +1065,21 @@ function savePreset() {
             levels[layer.id] = parseInt(slider.value);
         }
     });
+    if (Object.keys(levels).length === 0) return;
+
+    const name = generateMixName();
     const presets = getPresets();
     presets.unshift({ name, levels, createdAt: Date.now() });
     if (presets.length > 20) presets.length = 20;
     localStorage.setItem('drift_presets', JSON.stringify(presets));
     renderPresets();
+
+    // Visual feedback
+    const btn = document.getElementById('save-preset');
+    if (btn) {
+        btn.textContent = 'Saved!';
+        setTimeout(() => btn.textContent = 'Save Mix', 2000);
+    }
 }
 
 function loadPreset(levels) {
