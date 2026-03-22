@@ -580,38 +580,58 @@ function initAudio() {
     });
 }
 
-// Lazy-init a single layer's audio nodes (supports async for sample layers)
-async function initLayer(layerId) {
+// Lazy-init a single layer's audio nodes
+function initLayer(layerId) {
     const state = layerStates[layerId];
     if (!state || state.initialized || state.loading) return;
     const layerDef = LAYERS.find(l => l.id === layerId);
     if (!layerDef) return;
 
     state.loading = true;
-
-    // Show loading state on the card
     const card = document.getElementById(`layer-${layerId}`);
     if (card) card.classList.add('loading');
 
     try {
-        const nodes = await layerDef.create(audioCtx, masterGain);
-        state.source = nodes.source;
-        state.gain = nodes.gain;
-        state.extras = nodes.extras || null;
-        state.initialized = true;
-        if (state.gain) {
-            state.gain.gain.setValueAtTime(0, audioCtx.currentTime);
-            // Apply the pending volume
-            if (state.volume > 0) {
-                state.gain.gain.linearRampToValueAtTime(state.volume * 0.15, audioCtx.currentTime + 0.2);
+        // Resume context before creating nodes (Safari needs this per gesture)
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+
+        const result = layerDef.create(audioCtx, masterGain);
+
+        // Handle both sync and async create functions
+        if (result && typeof result.then === 'function') {
+            result.then(nodes => {
+                state.source = nodes.source;
+                state.gain = nodes.gain;
+                state.extras = nodes.extras || null;
+                state.initialized = true;
+                state.loading = false;
+                if (card) card.classList.remove('loading');
+                if (state.gain) {
+                    state.gain.gain.setValueAtTime(0, audioCtx.currentTime);
+                    if (state.volume > 0) {
+                        state.gain.gain.linearRampToValueAtTime(state.volume * 0.15, audioCtx.currentTime + 0.2);
+                    }
+                }
+            });
+        } else {
+            state.source = result.source;
+            state.gain = result.gain;
+            state.extras = result.extras || null;
+            state.initialized = true;
+            state.loading = false;
+            if (card) card.classList.remove('loading');
+            if (state.gain) {
+                state.gain.gain.setValueAtTime(0, audioCtx.currentTime);
+                if (state.volume > 0) {
+                    state.gain.gain.linearRampToValueAtTime(state.volume * 0.15, audioCtx.currentTime + 0.2);
+                }
             }
         }
     } catch(e) {
         console.warn(`Failed to init layer ${layerId}:`, e);
+        state.loading = false;
+        if (card) card.classList.remove('loading');
     }
-
-    state.loading = false;
-    if (card) card.classList.remove('loading');
 }
 
 // Set layer volume (0-1)
@@ -619,13 +639,13 @@ function setLayerVolume(layerId, vol) {
     const state = layerStates[layerId];
     if (!state) return;
 
-    // Resume audio context on any interaction (iOS Safari requires user gesture)
+    // Resume audio context on any slider interaction
     if (audioCtx && audioCtx.state === 'suspended') {
         audioCtx.resume();
     }
 
-    // Lazy init: create audio nodes on first use
-    if (vol > 0 && !state.initialized) {
+    // Lazy init: create audio nodes on first use (sync, in gesture call stack)
+    if (vol > 0 && !state.initialized && !state.loading) {
         initLayer(layerId);
     }
 
@@ -953,23 +973,17 @@ if (mobileOverlay) {
 function unlockAudio() {
     initAudio();
     if (audioCtx) {
+        // Resume context
         audioCtx.resume();
 
-        // Safari nuclear option: init ALL layers during the tap gesture
-        // Safari requires audio sources to start in the user gesture call stack
-        LAYERS.forEach(layer => {
-            if (!layerStates[layer.id].initialized) {
-                const nodes = layer.create(audioCtx, masterGain);
-                layerStates[layer.id].source = nodes.source;
-                layerStates[layer.id].gain = nodes.gain;
-                layerStates[layer.id].extras = nodes.extras || null;
-                layerStates[layer.id].initialized = true;
-                // Start at zero volume
-                if (nodes.gain) {
-                    nodes.gain.gain.setValueAtTime(0, audioCtx.currentTime);
-                }
-            }
-        });
+        // Play silent buffer to fully unlock Safari audio
+        const buf = audioCtx.createBuffer(1, 1, audioCtx.sampleRate);
+        const src = audioCtx.createBufferSource();
+        src.buffer = buf;
+        src.connect(audioCtx.destination);
+        src.start();
+
+        audioCtx._unlocked = true;
     }
     if (mobileOverlay) mobileOverlay.style.display = 'none';
 }
