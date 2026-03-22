@@ -456,6 +456,49 @@ const LAYERS = [
     },
 ];
 
+// Layer pairing suggestions (Claudia's curation)
+const LAYER_PAIRS = {
+    'rain': ['cafe', 'vinyl', 'thunder'],
+    'heavy-rain': ['thunder', 'wind', 'drone'],
+    'thunder': ['rain', 'heavy-rain', 'wind'],
+    'wind': ['leaves', 'snow', 'fire'],
+    'fire': ['snow', 'vinyl', 'wind'],
+    'vinyl': ['rain', 'fire', 'cafe'],
+    'cafe': ['rain', 'vinyl'],
+    'train': ['rain', 'drone'],
+    'crickets': ['waves', 'drone', 'birds'],
+    'waves': ['crickets', 'drone'],
+    'birds': ['leaves', 'wind', 'crickets'],
+    'leaves': ['birds', 'wind'],
+    'drone': ['rain', 'waves', 'train'],
+    'brown-noise': ['rain', 'drone'],
+    'white-noise': [],
+    'snow': ['fire', 'wind'],
+};
+
+function updateSuggestions() {
+    // Clear all suggestions
+    document.querySelectorAll('.layer-card').forEach(c => c.classList.remove('suggested'));
+
+    // Find active layers
+    const active = Object.entries(layerStates).filter(([_, s]) => s.active).map(([id]) => id);
+    if (active.length === 0) return;
+
+    // Collect suggested layers
+    const suggested = new Set();
+    active.forEach(id => {
+        (LAYER_PAIRS[id] || []).forEach(s => {
+            if (!active.includes(s)) suggested.add(s);
+        });
+    });
+
+    // Apply subtle glow
+    suggested.forEach(id => {
+        const card = document.getElementById(`layer-${id}`);
+        if (card) card.classList.add('suggested');
+    });
+}
+
 // Utilities
 function createNoise(ctx) {
     const bufferSize = ctx.sampleRate * 2;
@@ -590,6 +633,7 @@ function buildMixer() {
                     window.nwlTrack('layer_activate', { layer: layer.id, name: layer.name, category: layer.category });
                 }
                 wasActive = isActive;
+                updateSuggestions();
             });
 
             section.appendChild(card);

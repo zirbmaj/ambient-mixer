@@ -104,6 +104,11 @@ body {
     box-shadow: 0 0 15px var(--accent-glow);
 }
 
+.layer-card.suggested {
+    border-color: rgba(122, 138, 106, 0.1);
+    transition: border-color 0.5s ease;
+}
+
 .layer-icon {
     font-size: 18px;
     text-align: center;
