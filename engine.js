@@ -874,17 +874,14 @@ function getMixUrl() {
     return url.toString();
 }
 
+let pendingMixLevels = null;
+
 function loadMixFromUrl() {
     const params = new URLSearchParams(window.location.search);
     const mix = params.get('mix');
     if (!mix) return false;
     try {
-        const levels = JSON.parse(atob(mix));
-        // Wait for first click to init audio
-        document.addEventListener('click', function loadOnce() {
-            loadPreset(levels);
-            document.removeEventListener('click', loadOnce);
-        }, { once: true });
+        pendingMixLevels = JSON.parse(atob(mix));
         return true;
     } catch {
         return false;
@@ -1002,6 +999,12 @@ function unlockAudio() {
         src.start();
     }
     if (mobileOverlay) mobileOverlay.style.display = 'none';
+
+    // Auto-play pending mix from URL
+    if (pendingMixLevels) {
+        loadPreset(pendingMixLevels);
+        pendingMixLevels = null;
+    }
 }
 
 // Init
