@@ -9,6 +9,8 @@ const LAYERS = [
         name: 'Rain',
         icon: '🌧',
         category: 'weather',
+        type: 'sample',
+        src: '/audio/rain.mp3',
         create: (ctx, dest) => {
             const noise = createNoise(ctx);
             const filter = ctx.createBiquadFilter();
@@ -29,6 +31,8 @@ const LAYERS = [
         name: 'Heavy Rain',
         icon: '⛆',
         category: 'weather',
+        type: 'sample',
+        src: '/audio/heavy-rain.mp3',
         create: (ctx, dest) => {
             const noise = createNoise(ctx);
             const filter = ctx.createBiquadFilter();
@@ -49,6 +53,8 @@ const LAYERS = [
         name: 'Thunder',
         icon: '⛈',
         category: 'weather',
+        type: 'sample',
+        src: '/audio/thunder.mp3',
         create: (ctx, dest) => {
             const noise = createNoise(ctx);
             const filter = ctx.createBiquadFilter();
@@ -81,6 +87,7 @@ const LAYERS = [
         name: 'Wind',
         icon: '💨',
         category: 'weather',
+        type: 'synthesis',
         create: (ctx, dest) => {
             const noise = createNoise(ctx);
             const filter = ctx.createBiquadFilter();
@@ -100,6 +107,8 @@ const LAYERS = [
         name: 'Fireplace',
         icon: '🔥',
         category: 'spaces',
+        type: 'sample',
+        src: '/audio/fire.mp3',
         create: (ctx, dest) => {
             // Crackle layer (high)
             const noise = createNoise(ctx);
@@ -136,6 +145,8 @@ const LAYERS = [
         name: 'Vinyl Crackle',
         icon: '💿',
         category: 'spaces',
+        type: 'sample',
+        src: '/audio/vinyl.mp3',
         create: (ctx, dest) => {
             // Base crackle
             const noise = createNoise(ctx);
@@ -178,6 +189,8 @@ const LAYERS = [
         name: 'Cafe',
         icon: '☕',
         category: 'spaces',
+        type: 'sample',
+        src: '/audio/cafe.mp3',
         create: (ctx, dest) => {
             // Layered filtered noise to simulate murmur
             const noise = createNoise(ctx);
@@ -207,6 +220,8 @@ const LAYERS = [
         name: 'Crickets',
         icon: '🦗',
         category: 'nature',
+        type: 'sample',
+        src: '/audio/crickets.mp3',
         create: (ctx, dest) => {
             const gain = ctx.createGain();
             gain.gain.value = 0;
@@ -245,6 +260,8 @@ const LAYERS = [
         name: 'Ocean Waves',
         icon: '🏖',
         category: 'nature',
+        type: 'sample',
+        src: '/audio/waves.mp3',
         create: (ctx, dest) => {
             const noise = createNoise(ctx);
             const filter = ctx.createBiquadFilter();
@@ -272,6 +289,7 @@ const LAYERS = [
         name: 'Deep Drone',
         icon: '🎵',
         category: 'textures',
+        type: 'synthesis',
         create: (ctx, dest) => {
             const osc = ctx.createOscillator();
             osc.type = 'sine';
@@ -294,6 +312,7 @@ const LAYERS = [
         name: 'Brown Noise',
         icon: '🟤',
         category: 'textures',
+        type: 'synthesis',
         create: (ctx, dest) => {
             const bufferSize = ctx.sampleRate * 2;
             const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
@@ -321,6 +340,7 @@ const LAYERS = [
         name: 'White Noise',
         icon: '⬜',
         category: 'textures',
+        type: 'synthesis',
         create: (ctx, dest) => {
             const noise = createNoise(ctx);
             const gain = ctx.createGain();
@@ -336,6 +356,8 @@ const LAYERS = [
         name: 'Train Cabin',
         icon: '🚂',
         category: 'spaces',
+        type: 'sample',
+        src: '/audio/train.mp3',
         create: (ctx, dest) => {
             // Rhythmic clacking
             const noise = createNoise(ctx);
@@ -373,6 +395,8 @@ const LAYERS = [
         name: 'Forest Birds',
         icon: '🐦',
         category: 'nature',
+        type: 'sample',
+        src: '/audio/birds.mp3',
         create: (ctx, dest) => {
             const gain = ctx.createGain();
             gain.gain.value = 0;
@@ -412,6 +436,8 @@ const LAYERS = [
         name: 'Leaves Rustling',
         icon: '🍃',
         category: 'nature',
+        type: 'sample',
+        src: '/audio/leaves.mp3',
         create: (ctx, dest) => {
             const noise = createNoise(ctx);
             const filter = ctx.createBiquadFilter();
@@ -439,6 +465,7 @@ const LAYERS = [
         name: 'Snow Silence',
         icon: '❄',
         category: 'weather',
+        type: 'synthesis',
         create: (ctx, dest) => {
             const noise = createNoise(ctx);
             const filter = ctx.createBiquadFilter();
@@ -580,7 +607,10 @@ function initAudio() {
     });
 }
 
-// Lazy-init a single layer's audio nodes
+// Master volume tracking for sample layers
+let masterVolume = 0.7;
+
+// Lazy-init a single layer's audio nodes (dual engine: synthesis or sample)
 function initLayer(layerId) {
     const state = layerStates[layerId];
     if (!state || state.initialized || state.loading) return;
@@ -591,18 +621,49 @@ function initLayer(layerId) {
     const card = document.getElementById(`layer-${layerId}`);
     if (card) card.classList.add('loading');
 
+    if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+
+    if (layerDef.type === 'sample' && layerDef.src) {
+        // HTML5 Audio — better iOS support, real recordings
+        const audio = new Audio(layerDef.src);
+        audio.loop = true;
+        audio.volume = 0;
+        audio.preload = 'auto';
+        audio.addEventListener('canplaythrough', () => {
+            state.loading = false;
+            if (card) card.classList.remove('loading');
+        }, { once: true });
+        audio.addEventListener('error', () => {
+            console.warn(`Failed to load sample: ${layerDef.src}, falling back to synthesis`);
+            state.loading = false;
+            if (card) card.classList.remove('loading');
+            // Fallback to synthesis if sample fails to load
+            if (layerDef.create) {
+                initSynthesisLayer(layerId, layerDef, state, card);
+            }
+        }, { once: true });
+        audio.play().catch(() => {});
+        state.audio = audio;
+        state.type = 'sample';
+        state.initialized = true;
+        if (state.volume > 0) {
+            audio.volume = state.volume * masterVolume;
+        }
+    } else {
+        // Web Audio API synthesis
+        initSynthesisLayer(layerId, layerDef, state, card);
+    }
+}
+
+function initSynthesisLayer(layerId, layerDef, state, card) {
     try {
-        // Resume context before creating nodes (Safari needs this per gesture)
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-
         const result = layerDef.create(audioCtx, masterGain);
-
-        // Handle both sync and async create functions
         if (result && typeof result.then === 'function') {
             result.then(nodes => {
                 state.source = nodes.source;
                 state.gain = nodes.gain;
                 state.extras = nodes.extras || null;
+                state.type = 'synthesis';
                 state.initialized = true;
                 state.loading = false;
                 if (card) card.classList.remove('loading');
@@ -617,6 +678,7 @@ function initLayer(layerId) {
             state.source = result.source;
             state.gain = result.gain;
             state.extras = result.extras || null;
+            state.type = 'synthesis';
             state.initialized = true;
             state.loading = false;
             if (card) card.classList.remove('loading');
@@ -654,40 +716,57 @@ function setLayerVolume(layerId, vol) {
 
     // Destroy nodes when volume goes to zero (free resources)
     if (vol === 0 && state.initialized) {
-        if (state.gain) {
-            state.gain.gain.cancelScheduledValues(audioCtx.currentTime);
-            state.gain.gain.setValueAtTime(0, audioCtx.currentTime);
-        }
-        // Stop and disconnect after a brief fade
-        setTimeout(() => {
-            if (state.volume === 0) {
-                try { if (state.source) state.source.stop(); } catch(e) {}
-                try { if (state.source) state.source.disconnect(); } catch(e) {}
-                if (state.extras) {
-                    state.extras.forEach(n => { try { n.stop(); } catch(e) {} try { n.disconnect(); } catch(e) {} });
-                }
-                if (state.gain) state.gain.disconnect();
-                state.source = null;
-                state.gain = null;
-                state.extras = null;
-                state.initialized = false;
+        if (state.type === 'sample' && state.audio) {
+            state.audio.pause();
+            state.audio.src = '';
+            state.audio = null;
+        } else {
+            if (state.gain) {
+                state.gain.gain.cancelScheduledValues(audioCtx.currentTime);
+                state.gain.gain.setValueAtTime(0, audioCtx.currentTime);
             }
-        }, 300);
+            setTimeout(() => {
+                if (state.volume === 0) {
+                    try { if (state.source) state.source.stop(); } catch(e) {}
+                    try { if (state.source) state.source.disconnect(); } catch(e) {}
+                    if (state.extras) {
+                        state.extras.forEach(n => { try { n.stop(); } catch(e) {} try { n.disconnect(); } catch(e) {} });
+                    }
+                    if (state.gain) state.gain.disconnect();
+                    state.source = null;
+                    state.gain = null;
+                    state.extras = null;
+                }
+            }, 300);
+        }
+        state.initialized = false;
+        state.type = null;
         return;
     }
 
-    if (state.gain) {
+    // Set volume based on layer type
+    if (state.type === 'sample' && state.audio) {
+        state.audio.volume = vol * masterVolume;
+    } else if (state.gain) {
         state.gain.gain.cancelScheduledValues(audioCtx.currentTime);
         state.gain.gain.setValueAtTime(state.gain.gain.value, audioCtx.currentTime);
         state.gain.gain.linearRampToValueAtTime(vol * 0.15, audioCtx.currentTime + 0.2);
     }
 }
 
-// Master volume
+// Master volume — controls both synthesis (via gain node) and samples (via multiplier)
 function setMasterVolume(vol) {
+    masterVolume = vol;
+    // Synthesis layers via master gain node
     if (masterGain) {
         masterGain.gain.linearRampToValueAtTime(vol, audioCtx.currentTime + 0.1);
     }
+    // Sample layers — update each directly
+    Object.entries(layerStates).forEach(([id, state]) => {
+        if (state.type === 'sample' && state.audio && state.active) {
+            state.audio.volume = state.volume * vol;
+        }
+    });
 }
 
 // Toggle play/pause
