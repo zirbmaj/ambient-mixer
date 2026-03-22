@@ -850,7 +850,7 @@ function togglePlayback() {
 // Top layers shown by default (from analytics data)
 // Ordered: familiar → trending → cozy → simple → unique → experimental
 const FEATURED_LAYERS = ['rain', 'brown-noise', 'fire', 'wind', 'snow', 'drone'];
-let showAllLayers = false;
+let showAllLayers = localStorage.getItem('drift_show_all') === 'true';
 
 // Waveform patterns per layer category
 // Per-layer waveform patterns (unique visual signature for each sound)
@@ -1034,6 +1034,7 @@ function buildMixer() {
     toggle.textContent = 'show all 16 layers';
     toggle.addEventListener('click', () => {
         showAllLayers = !showAllLayers;
+        localStorage.setItem('drift_show_all', showAllLayers);
         if (showAllLayers) {
             document.querySelectorAll('.hidden-layer').forEach(el => el.classList.remove('hidden-layer'));
             document.querySelectorAll('.cat-header').forEach(el => el.style.display = '');
