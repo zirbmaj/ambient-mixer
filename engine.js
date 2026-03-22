@@ -619,6 +619,11 @@ function setLayerVolume(layerId, vol) {
     const state = layerStates[layerId];
     if (!state) return;
 
+    // Resume audio context on any interaction (iOS Safari requires user gesture)
+    if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+    }
+
     // Lazy init: create audio nodes on first use
     if (vol > 0 && !state.initialized) {
         initLayer(layerId);
@@ -937,6 +942,16 @@ document.addEventListener('keydown', (e) => {
         loadPreset(DEFAULT_MIXES[presetIndex].levels);
     }
 });
+
+// Mobile start overlay — tap to init audio
+const mobileOverlay = document.getElementById('mobile-start');
+if (mobileOverlay) {
+    mobileOverlay.addEventListener('click', () => {
+        initAudio();
+        if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+        mobileOverlay.style.display = 'none';
+    });
+}
 
 // Init
 buildMixer();
