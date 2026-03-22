@@ -395,6 +395,13 @@ body {
     animation: pulse 2s ease-in-out infinite;
 }
 
+.start-hint {
+    font-size: 10px;
+    color: var(--text-dim);
+    margin-top: 16px;
+    letter-spacing: 1px;
+}
+
 @keyframes pulse {
     0%, 100% { opacity: 0.4; }
     50% { opacity: 1; }
