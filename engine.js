@@ -27,7 +27,7 @@ const LAYERS = [
     {
         id: 'heavy-rain',
         name: 'Heavy Rain',
-        icon: '🌊',
+        icon: '⛆',
         category: 'weather',
         create: (ctx, dest) => {
             const noise = createNoise(ctx);
@@ -99,16 +99,21 @@ const LAYERS = [
         id: 'fire',
         name: 'Fireplace',
         icon: '🔥',
-        category: 'indoor',
+        category: 'spaces',
         create: (ctx, dest) => {
+            // Crackle layer (high)
             const noise = createNoise(ctx);
             const filter = ctx.createBiquadFilter();
             filter.type = 'bandpass';
             filter.frequency.value = 2000;
             filter.Q.value = 2;
+            // Body layer (low warmth)
+            const noise2 = createNoise(ctx);
+            const filter2 = ctx.createBiquadFilter();
+            filter2.type = 'lowpass';
+            filter2.frequency.value = 300;
             const gain = ctx.createGain();
             gain.gain.value = 0;
-            // Crackle modulation
             const lfo = ctx.createOscillator();
             lfo.frequency.value = 3 + Math.random() * 5;
             const lfoGain = ctx.createGain();
@@ -118,17 +123,21 @@ const LAYERS = [
             lfo.start();
             noise.connect(filter);
             filter.connect(gain);
+            noise2.connect(filter2);
+            filter2.connect(gain);
             gain.connect(dest);
             noise.start();
-            return { source: noise, gain, extras: [lfo] };
+            noise2.start();
+            return { source: noise, gain, extras: [lfo, noise2] };
         }
     },
     {
         id: 'vinyl',
         name: 'Vinyl Crackle',
         icon: '💿',
-        category: 'indoor',
+        category: 'spaces',
         create: (ctx, dest) => {
+            // Base crackle
             const noise = createNoise(ctx);
             const filter = ctx.createBiquadFilter();
             filter.type = 'highpass';
@@ -139,6 +148,28 @@ const LAYERS = [
             filter.connect(gain);
             gain.connect(dest);
             noise.start();
+            // Intermittent pops
+            function schedulePop() {
+                if (gain.gain.value > 0.001) {
+                    const popNoise = createNoise(ctx);
+                    const popFilter = ctx.createBiquadFilter();
+                    popFilter.type = 'bandpass';
+                    popFilter.frequency.value = 2000 + Math.random() * 3000;
+                    popFilter.Q.value = 5;
+                    const popGain = ctx.createGain();
+                    const now = ctx.currentTime;
+                    popGain.gain.setValueAtTime(0, now);
+                    popGain.gain.linearRampToValueAtTime(gain.gain.value * 2, now + 0.002);
+                    popGain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+                    popNoise.connect(popFilter);
+                    popFilter.connect(popGain);
+                    popGain.connect(dest);
+                    popNoise.start();
+                    popNoise.stop(now + 0.1);
+                }
+                setTimeout(schedulePop, 500 + Math.random() * 3000);
+            }
+            setTimeout(schedulePop, 1000);
             return { source: noise, gain };
         }
     },
@@ -146,7 +177,7 @@ const LAYERS = [
         id: 'cafe',
         name: 'Cafe',
         icon: '☕',
-        category: 'indoor',
+        category: 'spaces',
         create: (ctx, dest) => {
             // Layered filtered noise to simulate murmur
             const noise = createNoise(ctx);
@@ -212,7 +243,7 @@ const LAYERS = [
     {
         id: 'waves',
         name: 'Ocean Waves',
-        icon: '🌊',
+        icon: '🏖',
         category: 'nature',
         create: (ctx, dest) => {
             const noise = createNoise(ctx);
@@ -240,7 +271,7 @@ const LAYERS = [
         id: 'drone',
         name: 'Deep Drone',
         icon: '🎵',
-        category: 'tonal',
+        category: 'textures',
         create: (ctx, dest) => {
             const osc = ctx.createOscillator();
             osc.type = 'sine';
@@ -256,6 +287,171 @@ const LAYERS = [
             osc.start();
             osc2.start();
             return { source: osc, gain, extras: [osc2] };
+        }
+    },
+    {
+        id: 'brown-noise',
+        name: 'Brown Noise',
+        icon: '🟤',
+        category: 'textures',
+        create: (ctx, dest) => {
+            const bufferSize = ctx.sampleRate * 2;
+            const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+            const data = buffer.getChannelData(0);
+            let last = 0;
+            for (let i = 0; i < bufferSize; i++) {
+                const white = Math.random() * 2 - 1;
+                data[i] = (last + (0.02 * white)) / 1.02;
+                last = data[i];
+                data[i] *= 3.5;
+            }
+            const source = ctx.createBufferSource();
+            source.buffer = buffer;
+            source.loop = true;
+            const gain = ctx.createGain();
+            gain.gain.value = 0;
+            source.connect(gain);
+            gain.connect(dest);
+            source.start();
+            return { source, gain };
+        }
+    },
+    {
+        id: 'white-noise',
+        name: 'White Noise',
+        icon: '⬜',
+        category: 'textures',
+        create: (ctx, dest) => {
+            const noise = createNoise(ctx);
+            const gain = ctx.createGain();
+            gain.gain.value = 0;
+            noise.connect(gain);
+            gain.connect(dest);
+            noise.start();
+            return { source: noise, gain };
+        }
+    },
+    {
+        id: 'train',
+        name: 'Train Cabin',
+        icon: '🚂',
+        category: 'spaces',
+        create: (ctx, dest) => {
+            // Rhythmic clacking
+            const noise = createNoise(ctx);
+            const bp = ctx.createBiquadFilter();
+            bp.type = 'bandpass';
+            bp.frequency.value = 200;
+            bp.Q.value = 0.5;
+            // Low rumble
+            const noise2 = createNoise(ctx);
+            const lp = ctx.createBiquadFilter();
+            lp.type = 'lowpass';
+            lp.frequency.value = 100;
+            // Rhythmic modulation
+            const lfo = ctx.createOscillator();
+            lfo.frequency.value = 2.2;
+            const lfoGain = ctx.createGain();
+            lfoGain.gain.value = 0.15;
+            const gain = ctx.createGain();
+            gain.gain.value = 0;
+            lfo.connect(lfoGain);
+            lfoGain.connect(gain.gain);
+            lfo.start();
+            noise.connect(bp);
+            bp.connect(gain);
+            noise2.connect(lp);
+            lp.connect(gain);
+            gain.connect(dest);
+            noise.start();
+            noise2.start();
+            return { source: noise, gain, extras: [lfo, noise2] };
+        }
+    },
+    {
+        id: 'birds',
+        name: 'Forest Birds',
+        icon: '🐦',
+        category: 'nature',
+        create: (ctx, dest) => {
+            const gain = ctx.createGain();
+            gain.gain.value = 0;
+            gain.connect(dest);
+            const oscs = [];
+            // Multiple bird-like chirps at different frequencies
+            for (let i = 0; i < 5; i++) {
+                const osc = ctx.createOscillator();
+                osc.type = 'sine';
+                osc.frequency.value = 2000 + Math.random() * 3000;
+                const vibrato = ctx.createOscillator();
+                vibrato.frequency.value = 4 + Math.random() * 8;
+                const vibGain = ctx.createGain();
+                vibGain.gain.value = 200 + Math.random() * 400;
+                vibrato.connect(vibGain);
+                vibGain.connect(osc.frequency);
+                const tremolo = ctx.createOscillator();
+                tremolo.frequency.value = 0.3 + Math.random() * 0.8;
+                const tGain = ctx.createGain();
+                tGain.gain.value = 0.004;
+                const mGain = ctx.createGain();
+                mGain.gain.value = 0.004;
+                tremolo.connect(tGain.gain);
+                osc.connect(tGain);
+                tGain.connect(mGain);
+                mGain.connect(gain);
+                osc.start();
+                vibrato.start();
+                tremolo.start();
+                oscs.push(osc, vibrato, tremolo);
+            }
+            return { source: oscs[0], gain, extras: oscs.slice(1) };
+        }
+    },
+    {
+        id: 'leaves',
+        name: 'Leaves Rustling',
+        icon: '🍃',
+        category: 'nature',
+        create: (ctx, dest) => {
+            const noise = createNoise(ctx);
+            const filter = ctx.createBiquadFilter();
+            filter.type = 'bandpass';
+            filter.frequency.value = 3000;
+            filter.Q.value = 0.8;
+            const lfo = ctx.createOscillator();
+            lfo.frequency.value = 0.3 + Math.random() * 0.5;
+            const lfoGain = ctx.createGain();
+            lfoGain.gain.value = 1500;
+            lfo.connect(lfoGain);
+            lfoGain.connect(filter.frequency);
+            lfo.start();
+            const gain = ctx.createGain();
+            gain.gain.value = 0;
+            noise.connect(filter);
+            filter.connect(gain);
+            gain.connect(dest);
+            noise.start();
+            return { source: noise, gain, extras: [lfo] };
+        }
+    },
+    {
+        id: 'snow',
+        name: 'Snow Silence',
+        icon: '❄',
+        category: 'weather',
+        create: (ctx, dest) => {
+            const noise = createNoise(ctx);
+            const filter = ctx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.value = 200;
+            filter.Q.value = 0.5;
+            const gain = ctx.createGain();
+            gain.gain.value = 0;
+            noise.connect(filter);
+            filter.connect(gain);
+            gain.connect(dest);
+            noise.start();
+            return { source: noise, gain };
         }
     },
 ];
