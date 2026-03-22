@@ -519,11 +519,11 @@ let masterGain = null;
 let isPlaying = false;
 let layerStates = {};
 
-// Init audio
+// Init audio context only (no layers)
 function initAudio() {
     if (audioCtx) return;
     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    // Compressor to prevent clipping when stacking layers
+
     const compressor = audioCtx.createDynamicsCompressor();
     compressor.threshold.value = -20;
     compressor.knee.value = 10;
@@ -536,25 +536,74 @@ function initAudio() {
     masterGain.gain.value = 0.7;
     masterGain.connect(compressor);
 
-    // Create all layers
+    // Don't create any layers yet — lazy init when slider moves
     LAYERS.forEach(layer => {
-        const nodes = layer.create(audioCtx, masterGain);
         layerStates[layer.id] = {
-            ...nodes,
+            source: null,
+            gain: null,
+            extras: null,
             volume: 0,
             active: false,
+            initialized: false,
         };
     });
+}
+
+// Lazy-init a single layer's audio nodes
+function initLayer(layerId) {
+    const state = layerStates[layerId];
+    if (!state || state.initialized) return;
+    const layerDef = LAYERS.find(l => l.id === layerId);
+    if (!layerDef) return;
+    const nodes = layerDef.create(audioCtx, masterGain);
+    state.source = nodes.source;
+    state.gain = nodes.gain;
+    state.extras = nodes.extras || null;
+    state.initialized = true;
+    // Start at zero
+    if (state.gain) {
+        state.gain.gain.setValueAtTime(0, audioCtx.currentTime);
+    }
 }
 
 // Set layer volume (0-1)
 function setLayerVolume(layerId, vol) {
     const state = layerStates[layerId];
     if (!state) return;
+
+    // Lazy init: create audio nodes on first use
+    if (vol > 0 && !state.initialized) {
+        initLayer(layerId);
+    }
+
     state.volume = vol;
     state.active = vol > 0;
+
+    // Destroy nodes when volume goes to zero (free resources)
+    if (vol === 0 && state.initialized) {
+        if (state.gain) {
+            state.gain.gain.cancelScheduledValues(audioCtx.currentTime);
+            state.gain.gain.setValueAtTime(0, audioCtx.currentTime);
+        }
+        // Stop and disconnect after a brief fade
+        setTimeout(() => {
+            if (state.volume === 0) {
+                try { if (state.source) state.source.stop(); } catch(e) {}
+                try { if (state.source) state.source.disconnect(); } catch(e) {}
+                if (state.extras) {
+                    state.extras.forEach(n => { try { n.stop(); } catch(e) {} try { n.disconnect(); } catch(e) {} });
+                }
+                if (state.gain) state.gain.disconnect();
+                state.source = null;
+                state.gain = null;
+                state.extras = null;
+                state.initialized = false;
+            }
+        }, 300);
+        return;
+    }
+
     if (state.gain) {
-        // Cancel any pending ramps to avoid conflicts
         state.gain.gain.cancelScheduledValues(audioCtx.currentTime);
         state.gain.gain.setValueAtTime(state.gain.gain.value, audioCtx.currentTime);
         state.gain.gain.linearRampToValueAtTime(vol * 0.15, audioCtx.currentTime + 0.2);
