@@ -254,6 +254,21 @@ body {
     cursor: pointer;
 }
 
+.layer-card.active .layer-slider::-webkit-slider-thumb {
+    animation: thumbBob 2s ease-in-out infinite;
+}
+
+.layer-card.active .layer-slider:hover::-webkit-slider-thumb,
+.layer-card.active .layer-slider:active::-webkit-slider-thumb {
+    animation: none;
+    transform: translateY(0);
+}
+
+@keyframes thumbBob {
+    0%, 100% { transform: translateY(-2px); }
+    50% { transform: translateY(2px); }
+}
+
 .layer-slider::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
@@ -262,6 +277,7 @@ body {
     border-radius: 50%;
     background: var(--accent);
     cursor: pointer;
+    transition: transform 0.15s ease;
     box-shadow: 0 0 6px var(--accent-glow);
 }
 
