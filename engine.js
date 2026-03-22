@@ -1024,8 +1024,7 @@ function buildMixer() {
             toggle.textContent = 'show all 16 layers';
         }
     });
-        grid.appendChild(toggle);
-    }
+    grid.appendChild(toggle);
 }
 
 // Presets (localStorage)
