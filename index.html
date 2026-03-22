@@ -43,19 +43,21 @@
         }
         .hero-logo {
             font-family: 'Space Mono', monospace;
-            font-size: 64px;
+            font-size: 72px;
             font-weight: 700;
-            letter-spacing: 16px;
-            text-shadow: 0 0 60px var(--accent-glow);
-            margin-bottom: 16px;
+            letter-spacing: 20px;
+            text-shadow: 0 0 80px var(--accent-glow), 0 0 160px rgba(122, 138, 106, 0.05);
+            margin-bottom: 20px;
+            position: relative;
         }
         .hero-tagline {
-            font-size: 20px;
+            font-size: 18px;
             font-weight: 300;
             color: var(--text-secondary);
-            max-width: 500px;
-            line-height: 1.6;
-            margin-bottom: 40px;
+            max-width: 480px;
+            line-height: 1.8;
+            margin-bottom: 48px;
+            letter-spacing: 0.3px;
         }
         .cta-btn {
             display: inline-block;
@@ -113,11 +115,18 @@
             gap: 24px;
         }
         .feature-card {
-            background: var(--bg-card);
-            border: 1px solid rgba(255,255,255,0.04);
-            border-radius: 12px;
-            padding: 32px 24px;
+            background: linear-gradient(135deg, var(--bg-card) 0%, rgba(14, 14, 20, 0.7) 100%);
+            border: 1px solid rgba(255,255,255,0.03);
+            border-radius: 16px;
+            padding: 36px 28px;
             text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+        .feature-card:hover {
+            border-color: rgba(255,255,255,0.08);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
         }
         .feature-icon { font-size: 32px; margin-bottom: 16px; }
         .feature-title {
@@ -169,18 +178,20 @@
             gap: 16px;
         }
         .preset-card {
-            background: var(--bg-card);
-            border: 1px solid rgba(255,255,255,0.04);
-            border-radius: 12px;
-            padding: 24px;
+            background: linear-gradient(135deg, var(--bg-card) 0%, rgba(14, 14, 20, 0.7) 100%);
+            border: 1px solid rgba(255,255,255,0.03);
+            border-radius: 14px;
+            padding: 24px 28px;
             cursor: pointer;
             transition: all 0.3s;
             text-decoration: none;
             color: var(--text);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
         }
         .preset-card:hover {
-            border-color: rgba(122,138,106,0.3);
-            box-shadow: 0 0 20px var(--accent-glow);
+            border-color: rgba(122,138,106,0.2);
+            box-shadow: 0 4px 20px var(--accent-glow);
+            transform: translateY(-2px);
         }
         .preset-name {
             font-size: 18px;
