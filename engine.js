@@ -145,8 +145,7 @@ const LAYERS = [
         name: 'Vinyl Crackle',
         icon: '💿',
         category: 'spaces',
-        type: 'sample',
-        src: '/audio/vinyl.mp3',
+        type: 'synthesis',
         create: (ctx, dest) => {
             // Base crackle
             const noise = createNoise(ctx);
