@@ -100,6 +100,8 @@
     }
 
     loadMixes();
+    // Quiet auto-refresh — new mixes just appear
+    setInterval(loadMixes, 30000);
     </script>
 
     <script src="https://nowherelabs.dev/track.js" data-project="drift"></script>
