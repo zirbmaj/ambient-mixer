@@ -674,12 +674,18 @@ function initLayer(layerId) {
 
 function initSynthesisLayer(layerId, layerDef, state, card) {
     try {
-        const result = layerDef.create(audioCtx, masterGain);
+        // Create AnalyserNode for real-time visualization
+        const analyser = audioCtx.createAnalyser();
+        analyser.fftSize = 256;
+        analyser.connect(masterGain);
+
+        const result = layerDef.create(audioCtx, analyser);
         if (result && typeof result.then === 'function') {
             result.then(nodes => {
                 state.source = nodes.source;
                 state.gain = nodes.gain;
                 state.extras = nodes.extras || null;
+                state.analyser = analyser;
                 state.type = 'synthesis';
                 state.initialized = true;
                 state.loading = false;
@@ -695,6 +701,7 @@ function initSynthesisLayer(layerId, layerDef, state, card) {
             state.source = result.source;
             state.gain = result.gain;
             state.extras = result.extras || null;
+            state.analyser = analyser;
             state.type = 'synthesis';
             state.initialized = true;
             state.loading = false;
@@ -828,24 +835,37 @@ const WAVE_PATTERNS = {
     textures: (x, t) => Math.sin(x * 2 + t * 0.3) * 0.8 + Math.sin(x * 0.5 + t * 0.1) * 0.2,
 };
 
-function drawWaveform(canvas, category, volume, time) {
+function drawWaveform(canvas, category, volume, time, analyserData) {
     const ctx = canvas.getContext('2d');
     const w = canvas.width;
     const h = canvas.height;
     ctx.clearRect(0, 0, w, h);
     if (volume <= 0) return;
 
-    const pattern = WAVE_PATTERNS[category] || WAVE_PATTERNS.textures;
     const opacity = Math.min(volume * 1.5, 0.6);
-
     ctx.beginPath();
     ctx.strokeStyle = `rgba(122, 138, 106, ${opacity})`;
     ctx.lineWidth = 1.5;
-    for (let x = 0; x < w; x++) {
-        const nx = x / w * Math.PI * 4;
-        const y = h / 2 + pattern(nx, time) * (h * 0.35) * volume;
-        if (x === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
+
+    if (analyserData && analyserData.length > 0) {
+        // Real audio data from AnalyserNode
+        const step = analyserData.length / w;
+        for (let x = 0; x < w; x++) {
+            const dataIndex = Math.floor(x * step);
+            const normalized = (analyserData[dataIndex] - 128) / 128;
+            const y = h / 2 + normalized * (h * 0.4) * volume;
+            if (x === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+        }
+    } else {
+        // Fallback: synthetic pattern
+        const pattern = WAVE_PATTERNS[category] || WAVE_PATTERNS.textures;
+        for (let x = 0; x < w; x++) {
+            const nx = x / w * Math.PI * 4;
+            const y = h / 2 + pattern(nx, time) * (h * 0.35) * volume;
+            if (x === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+        }
     }
     ctx.stroke();
 }
@@ -866,13 +886,20 @@ function buildLayerCard(layer, parent) {
         <div class="layer-val" id="val-${layer.id}">0%</div>
     `;
 
-    // Animate waveform
+    // Animate waveform (real audio data when available, fallback to synthetic)
     const canvas = card.querySelector('.wave-canvas');
     let animFrame;
     function animateWave() {
         const slider = card.querySelector('.layer-slider');
         const vol = slider ? parseInt(slider.value) / 100 : 0;
-        drawWaveform(canvas, layer.category, vol, Date.now() / 1000);
+        // Try to get real audio data from AnalyserNode
+        let analyserData = null;
+        const state = layerStates[layer.id];
+        if (state && state.analyser) {
+            analyserData = new Uint8Array(state.analyser.frequencyBinCount);
+            state.analyser.getByteTimeDomainData(analyserData);
+        }
+        drawWaveform(canvas, layer.category, vol, Date.now() / 1000, analyserData);
         if (vol > 0) animFrame = requestAnimationFrame(animateWave);
     }
     card._startWaveAnim = () => { cancelAnimationFrame(animFrame); animateWave(); };
