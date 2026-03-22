@@ -953,31 +953,22 @@ if (mobileOverlay) {
 function unlockAudio() {
     initAudio();
     if (audioCtx) {
-        // Play a silent buffer to unlock iOS audio
-        const silentBuffer = audioCtx.createBuffer(1, 1, audioCtx.sampleRate);
-        const silentSource = audioCtx.createBufferSource();
-        silentSource.buffer = silentBuffer;
-        silentSource.connect(audioCtx.destination);
-        silentSource.start();
+        audioCtx.resume();
 
-        // Pre-warm: create a real noise source at gain 0 during this gesture
-        // iOS needs at least one real AudioBufferSourceNode started in a user gesture
-        const warmBuffer = audioCtx.createBuffer(1, audioCtx.sampleRate * 2, audioCtx.sampleRate);
-        const warmData = warmBuffer.getChannelData(0);
-        for (let i = 0; i < warmData.length; i++) warmData[i] = Math.random() * 2 - 1;
-        const warmSource = audioCtx.createBufferSource();
-        warmSource.buffer = warmBuffer;
-        warmSource.loop = true;
-        const warmGain = audioCtx.createGain();
-        warmGain.gain.value = 0;
-        warmSource.connect(warmGain);
-        warmGain.connect(masterGain);
-        warmSource.start();
-        // Store it so lazy-init layers inherit the unlocked state
-        audioCtx._warmed = true;
-
-        audioCtx.resume().then(() => {
-            console.log('AudioContext unlocked:', audioCtx.state);
+        // Safari nuclear option: init ALL layers during the tap gesture
+        // Safari requires audio sources to start in the user gesture call stack
+        LAYERS.forEach(layer => {
+            if (!layerStates[layer.id].initialized) {
+                const nodes = layer.create(audioCtx, masterGain);
+                layerStates[layer.id].source = nodes.source;
+                layerStates[layer.id].gain = nodes.gain;
+                layerStates[layer.id].extras = nodes.extras || null;
+                layerStates[layer.id].initialized = true;
+                // Start at zero volume
+                if (nodes.gain) {
+                    nodes.gain.gain.setValueAtTime(0, audioCtx.currentTime);
+                }
+            }
         });
     }
     if (mobileOverlay) mobileOverlay.style.display = 'none';
