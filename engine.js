@@ -1207,6 +1207,39 @@ function shareMix() {
     });
 }
 
+// Publish mix to discover feed
+async function publishMix() {
+    const levels = {};
+    LAYERS.forEach(layer => {
+        const slider = document.getElementById(`slider-${layer.id}`);
+        if (slider && parseInt(slider.value) > 0) {
+            levels[layer.id] = parseInt(slider.value);
+        }
+    });
+    if (Object.keys(levels).length === 0) return;
+
+    const name = generateMixName();
+    const btn = document.getElementById('publish-btn');
+
+    try {
+        await fetch('https://lxecuywjwasxijxgnutn.supabase.co/rest/v1/published_mixes', {
+            method: 'POST',
+            headers: {
+                'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx4ZWN1eXdqd2FzeGlqeGdudXRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxNDM3OTIsImV4cCI6MjA4OTcxOTc5Mn0.Wyq_doDaRZ7EfdpwM2W0_BNtaVI47yN-4cy4yTWl7jo',
+                'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx4ZWN1eXdqd2FzeGlqeGdudXRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxNDM3OTIsImV4cCI6MjA4OTcxOTc5Mn0.Wyq_doDaRZ7EfdpwM2W0_BNtaVI47yN-4cy4yTWl7jo',
+                'Content-Type': 'application/json',
+                'Prefer': 'return=minimal',
+            },
+            body: JSON.stringify({ name, levels }),
+        });
+        if (btn) { btn.textContent = 'Published!'; setTimeout(() => btn.textContent = 'Publish', 2000); }
+        uiClick();
+        if (window.nwlTrack) window.nwlTrack('mix_publish', { name, layers: Object.keys(levels) });
+    } catch(e) {
+        if (btn) { btn.textContent = 'Failed'; setTimeout(() => btn.textContent = 'Publish', 2000); }
+    }
+}
+
 // Event listeners
 document.getElementById('master-toggle').addEventListener('click', togglePlayback);
 document.getElementById('master-volume').addEventListener('input', (e) => {
@@ -1214,6 +1247,7 @@ document.getElementById('master-volume').addEventListener('input', (e) => {
 });
 document.getElementById('save-preset').addEventListener('click', savePreset);
 document.getElementById('share-btn').addEventListener('click', shareMix);
+document.getElementById('publish-btn')?.addEventListener('click', publishMix);
 
 // Subtle share nudge after 30 seconds of active mixing
 let mixStartTime = null;

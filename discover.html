@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discover Mixes — Drift</title>
+    <meta name="description" content="Browse ambient mixes created by the Drift community. Click to listen.">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .discover-page { max-width: 800px; margin: 0 auto; padding: 40px 24px; }
+        .discover-header { text-align: center; margin-bottom: 40px; }
+        .discover-title { font-family: 'Space Mono', monospace; font-size: 14px; letter-spacing: 6px; color: var(--text-dim); margin-bottom: 8px; }
+        .discover-subtitle { font-size: 14px; color: var(--text-secondary); font-weight: 300; }
+        .mix-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+        .mix-card {
+            background: linear-gradient(135deg, var(--bg-card) 0%, rgba(14, 14, 20, 0.7) 100%);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            color: var(--text);
+            display: block;
+        }
+        .mix-card:hover {
+            border-color: rgba(122, 138, 106, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px var(--accent-glow);
+        }
+        .mix-card-name { font-size: 15px; font-weight: 400; margin-bottom: 6px; }
+        .mix-card-layers { font-size: 11px; color: var(--text-dim); line-height: 1.5; }
+        .mix-card-meta { font-family: 'Space Mono', monospace; font-size: 9px; color: var(--text-dim); margin-top: 8px; }
+        .empty-state { text-align: center; color: var(--text-dim); font-size: 14px; padding: 60px 0; font-weight: 300; }
+        .empty-state a { color: var(--accent); text-decoration: none; }
+        .back-link { display: inline-block; margin-bottom: 24px; font-size: 12px; color: var(--text-dim); text-decoration: none; }
+        .back-link:hover { color: var(--text-secondary); }
+    </style>
+</head>
+<body>
+    <div class="discover-page">
+        <a href="app.html" class="back-link">back to mixer</a>
+
+        <div class="discover-header">
+            <h1 class="discover-title">DISCOVER</h1>
+            <p class="discover-subtitle">mixes published by the drift community</p>
+        </div>
+
+        <div class="mix-grid" id="mix-grid">
+            <div class="empty-state">no published mixes yet. <a href="app.html">create one</a> and be the first</div>
+        </div>
+    </div>
+
+    <script>
+    const SB_URL = 'https://lxecuywjwasxijxgnutn.supabase.co';
+    const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx4ZWN1eXdqd2FzeGlqeGdudXRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxNDM3OTIsImV4cCI6MjA4OTcxOTc5Mn0.Wyq_doDaRZ7EfdpwM2W0_BNtaVI47yN-4cy4yTWl7jo';
+
+    async function loadMixes() {
+        try {
+            const res = await fetch(`${SB_URL}/rest/v1/published_mixes?order=created_at.desc&limit=50`, {
+                headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}` }
+            });
+            const mixes = await res.json();
+            const grid = document.getElementById('mix-grid');
+
+            if (!mixes.length) return;
+            grid.innerHTML = '';
+
+            mixes.forEach(mix => {
+                const layers = Object.keys(mix.levels).join(' + ');
+                const encoded = btoa(JSON.stringify(mix.levels));
+                const ago = timeAgo(new Date(mix.created_at));
+
+                const card = document.createElement('a');
+                card.className = 'mix-card';
+                card.href = `app.html?mix=${encoded}`;
+                card.innerHTML = `
+                    <div class="mix-card-name">${mix.name}</div>
+                    <div class="mix-card-layers">${layers}</div>
+                    <div class="mix-card-meta">${ago}</div>
+                `;
+                grid.appendChild(card);
+            });
+        } catch(e) {
+            console.warn('Failed to load mixes:', e);
+        }
+    }
+
+    function timeAgo(date) {
+        const diff = Date.now() - date.getTime();
+        const mins = Math.floor(diff / 60000);
+        if (mins < 1) return 'just now';
+        if (mins < 60) return mins + 'm ago';
+        const hrs = Math.floor(mins / 60);
+        if (hrs < 24) return hrs + 'h ago';
+        const days = Math.floor(hrs / 24);
+        return days + 'd ago';
+    }
+
+    loadMixes();
+    </script>
+
+    <script src="https://nowherelabs.dev/track.js" data-project="drift"></script>
+</body>
+</html>
