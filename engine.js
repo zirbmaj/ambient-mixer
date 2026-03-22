@@ -820,6 +820,36 @@ function togglePlayback() {
 const FEATURED_LAYERS = ['rain', 'brown-noise', 'fire', 'wind', 'snow', 'drone'];
 let showAllLayers = false;
 
+// Waveform patterns per layer category
+const WAVE_PATTERNS = {
+    weather: (x, t) => Math.sin(x * 4 + t) * 0.7 + Math.sin(x * 7 + t * 1.3) * 0.3,
+    spaces: (x, t) => Math.sin(x * 3 + t * 0.5) * 0.5 + Math.random() * 0.3,
+    nature: (x, t) => Math.sin(x * 6 + t) * 0.4 + Math.sin(x * 12 + t * 2) * 0.4,
+    textures: (x, t) => Math.sin(x * 2 + t * 0.3) * 0.8 + Math.sin(x * 0.5 + t * 0.1) * 0.2,
+};
+
+function drawWaveform(canvas, category, volume, time) {
+    const ctx = canvas.getContext('2d');
+    const w = canvas.width;
+    const h = canvas.height;
+    ctx.clearRect(0, 0, w, h);
+    if (volume <= 0) return;
+
+    const pattern = WAVE_PATTERNS[category] || WAVE_PATTERNS.textures;
+    const opacity = Math.min(volume * 1.5, 0.6);
+
+    ctx.beginPath();
+    ctx.strokeStyle = `rgba(122, 138, 106, ${opacity})`;
+    ctx.lineWidth = 1.5;
+    for (let x = 0; x < w; x++) {
+        const nx = x / w * Math.PI * 4;
+        const y = h / 2 + pattern(nx, time) * (h * 0.35) * volume;
+        if (x === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+}
+
 // Build a single layer card
 function buildLayerCard(layer, parent) {
     const card = document.createElement('div');
@@ -828,10 +858,25 @@ function buildLayerCard(layer, parent) {
     card.innerHTML = `
         <div class="layer-icon">${layer.icon}</div>
         <div class="layer-name">${layer.name}</div>
-        <input type="range" class="layer-slider" id="slider-${layer.id}"
-            min="0" max="100" value="0" />
+        <div class="slider-container">
+            <canvas class="wave-canvas" width="200" height="32"></canvas>
+            <input type="range" class="layer-slider" id="slider-${layer.id}"
+                min="0" max="100" value="0" />
+        </div>
         <div class="layer-val" id="val-${layer.id}">0%</div>
     `;
+
+    // Animate waveform
+    const canvas = card.querySelector('.wave-canvas');
+    let animFrame;
+    function animateWave() {
+        const slider = card.querySelector('.layer-slider');
+        const vol = slider ? parseInt(slider.value) / 100 : 0;
+        drawWaveform(canvas, layer.category, vol, Date.now() / 1000);
+        if (vol > 0) animFrame = requestAnimationFrame(animateWave);
+    }
+    card._startWaveAnim = () => { cancelAnimationFrame(animFrame); animateWave(); };
+    card._stopWaveAnim = () => { cancelAnimationFrame(animFrame); const ctx = canvas.getContext('2d'); ctx.clearRect(0, 0, 200, 32); };
     const slider = card.querySelector('.layer-slider');
     let wasActive = false;
     slider.addEventListener('input', (e) => {
@@ -848,6 +893,9 @@ function buildLayerCard(layer, parent) {
         wasActive = isActive;
         updateSuggestions();
         updateNowPlaying();
+        // Animate waveform
+        if (isActive) card._startWaveAnim();
+        else card._stopWaveAnim();
     });
     parent.appendChild(card);
 }
