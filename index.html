@@ -41,6 +41,15 @@
             padding: 40px 24px;
             position: relative;
         }
+        .hero-wave {
+            position: absolute;
+            bottom: 20%;
+            left: 0;
+            width: 100%;
+            height: 200px;
+            opacity: 0.7;
+            pointer-events: none;
+        }
         .hero-logo {
             font-family: 'Space Mono', monospace;
             font-size: 72px;
@@ -160,12 +169,18 @@
             gap: 10px;
         }
         .sound-tag {
-            background: var(--bg-card);
-            border: 1px solid rgba(255,255,255,0.04);
-            border-radius: 20px;
-            padding: 8px 20px;
+            background: linear-gradient(135deg, var(--bg-card) 0%, rgba(14, 14, 20, 0.6) 100%);
+            border: 1px solid rgba(255,255,255,0.03);
+            border-radius: 24px;
+            padding: 10px 22px;
             font-size: 13px;
             color: var(--text-secondary);
+            transition: all 0.3s;
+            cursor: default;
+        }
+        .sound-tag:hover {
+            border-color: rgba(122, 138, 106, 0.15);
+            color: var(--text);
         }
         .preset-section {
             padding: 80px 24px;
@@ -233,6 +248,17 @@
 </head>
 <body>
     <section class="hero">
+        <svg class="hero-wave" viewBox="0 0 1200 200" preserveAspectRatio="none">
+            <path d="M0,100 Q150,60 300,100 T600,100 T900,100 T1200,100" fill="none" stroke="rgba(122,138,106,0.06)" stroke-width="1.5">
+                <animate attributeName="d" dur="8s" repeatCount="indefinite" values="M0,100 Q150,60 300,100 T600,100 T900,100 T1200,100;M0,100 Q150,140 300,100 T600,100 T900,100 T1200,100;M0,100 Q150,60 300,100 T600,100 T900,100 T1200,100"/>
+            </path>
+            <path d="M0,110 Q200,80 400,110 T800,110 T1200,110" fill="none" stroke="rgba(122,138,106,0.04)" stroke-width="1">
+                <animate attributeName="d" dur="12s" repeatCount="indefinite" values="M0,110 Q200,80 400,110 T800,110 T1200,110;M0,110 Q200,140 400,110 T800,110 T1200,110;M0,110 Q200,80 400,110 T800,110 T1200,110"/>
+            </path>
+            <path d="M0,90 Q250,70 500,90 T1000,90 T1200,90" fill="none" stroke="rgba(122,138,106,0.03)" stroke-width="0.8">
+                <animate attributeName="d" dur="16s" repeatCount="indefinite" values="M0,90 Q250,70 500,90 T1000,90 T1200,90;M0,90 Q250,120 500,90 T1000,90 T1200,90;M0,90 Q250,70 500,90 T1000,90 T1200,90"/>
+            </path>
+        </svg>
         <h1 class="hero-logo">DRIFT</h1>
         <p class="hero-tagline">Layer rain over cafe chatter. Add fireplace crackle to brown noise. Build your perfect soundscape in seconds. Free, forever.</p>
         <div class="hero-actions">
