@@ -913,6 +913,31 @@ function renderDefaultMixes() {
     });
 }
 
+// Keyboard shortcuts
+document.addEventListener('keydown', (e) => {
+    if (e.target.tagName === 'INPUT' && e.target.type !== 'range') return;
+    if (e.key === ' ') {
+        e.preventDefault();
+        togglePlayback();
+    }
+    if (e.key === 'm' || e.key === 'M') {
+        const slider = document.getElementById('master-volume');
+        if (masterGain && masterGain.gain.value > 0) {
+            masterGain._savedVol = masterGain.gain.value;
+            setMasterVolume(0);
+            slider.value = 0;
+        } else if (masterGain) {
+            setMasterVolume(masterGain._savedVol || 0.7);
+            slider.value = (masterGain._savedVol || 0.7) * 100;
+        }
+    }
+    // 1-6 for default presets
+    const presetIndex = parseInt(e.key) - 1;
+    if (presetIndex >= 0 && presetIndex < (typeof DEFAULT_MIXES !== 'undefined' ? DEFAULT_MIXES.length : 0)) {
+        loadPreset(DEFAULT_MIXES[presetIndex].levels);
+    }
+});
+
 // Init
 buildMixer();
 renderPresets();
