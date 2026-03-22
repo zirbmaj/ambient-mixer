@@ -903,8 +903,10 @@ function buildMixer() {
         toggle.addEventListener('click', () => {
             showAllLayers = true;
             // Hide featured section, show full categorized list
+            // Remove featured section entirely to avoid duplicates
             const featured = document.getElementById('featured-layers');
-            if (featured) featured.style.display = 'none';
+            if (featured) featured.remove();
+            // Show all category sections
             document.querySelectorAll('.mixer-category').forEach(el => el.style.display = '');
             toggle.remove();
         });
