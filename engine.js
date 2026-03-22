@@ -576,13 +576,20 @@ function buildMixer() {
             `;
 
             const slider = card.querySelector('.layer-slider');
+            let wasActive = false;
             slider.addEventListener('input', (e) => {
                 const val = e.target.value / 100;
                 if (!audioCtx) initAudio();
                 if (!isPlaying) togglePlayback();
                 setLayerVolume(layer.id, val);
-                card.classList.toggle('active', val > 0);
+                const isActive = val > 0;
+                card.classList.toggle('active', isActive);
                 card.querySelector('.layer-val').textContent = `${e.target.value}%`;
+                // Track layer activation
+                if (isActive && !wasActive && window.nwlTrack) {
+                    window.nwlTrack('layer_activate', { layer: layer.id, name: layer.name, category: layer.category });
+                }
+                wasActive = isActive;
             });
 
             section.appendChild(card);
@@ -619,6 +626,10 @@ function savePreset() {
 function loadPreset(levels) {
     if (!audioCtx) initAudio();
     if (!isPlaying) togglePlayback();
+    // Track preset load
+    if (window.nwlTrack) {
+        window.nwlTrack('preset_load', { layers: Object.keys(levels), count: Object.keys(levels).length });
+    }
     // Reset all
     LAYERS.forEach(layer => {
         const val = levels[layer.id] || 0;
@@ -685,6 +696,9 @@ function loadMixFromUrl() {
 
 function shareMix() {
     const url = getMixUrl();
+    if (window.nwlTrack) {
+        window.nwlTrack('mix_share', { url });
+    }
     navigator.clipboard.writeText(url).then(() => {
         const btn = document.getElementById('share-btn');
         btn.textContent = 'Copied!';
