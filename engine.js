@@ -970,20 +970,38 @@ if (mobileOverlay) {
     mobileOverlay.addEventListener('click', unlockAudio);
 }
 
+const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+const IOS_PRELOAD = ['rain', 'fire', 'heavy-rain', 'drone', 'wind', 'snow'];
+
 function unlockAudio() {
     initAudio();
     if (audioCtx) {
-        // Resume context
         audioCtx.resume();
 
-        // Play silent buffer to fully unlock Safari audio
+        // Play silent buffer to unlock Safari audio
         const buf = audioCtx.createBuffer(1, 1, audioCtx.sampleRate);
         const src = audioCtx.createBufferSource();
         src.buffer = buf;
         src.connect(audioCtx.destination);
         src.start();
 
-        audioCtx._unlocked = true;
+        // iOS: pre-init top 6 layers during tap gesture
+        if (isIOS) {
+            IOS_PRELOAD.forEach(layerId => {
+                const state = layerStates[layerId];
+                if (state && !state.initialized) {
+                    const layerDef = LAYERS.find(l => l.id === layerId);
+                    if (layerDef) {
+                        const nodes = layerDef.create(audioCtx, masterGain);
+                        state.source = nodes.source;
+                        state.gain = nodes.gain;
+                        state.extras = nodes.extras || null;
+                        state.initialized = true;
+                        if (nodes.gain) nodes.gain.gain.setValueAtTime(0, audioCtx.currentTime);
+                    }
+                }
+            });
+        }
     }
     if (mobileOverlay) mobileOverlay.style.display = 'none';
 }
