@@ -3,60 +3,375 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Drift — ambient sound mixer</title>
-    <meta name="description" content="Layer rain, fire, cafe chatter, ocean waves, and more. Create your perfect ambient soundscape. Free, no account needed.">
-    <meta property="og:title" content="Drift — ambient sound mixer">
-    <meta property="og:description" content="Layer rain, fire, cafe chatter, ocean waves, and more. Create your perfect ambient soundscape.">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <title>Drift — Ambient Sound Mixer for Focus, Sleep & Relaxation</title>
+    <meta name="description" content="Layer rain, fire, cafe chatter, brown noise, and more. Create your perfect ambient soundscape. Free to use, no account required.">
+    <meta property="og:title" content="Drift — Ambient Sound Mixer">
+    <meta property="og:description" content="Layer rain, fire, cafe chatter, brown noise, and more. Create your perfect ambient soundscape.">
     <meta property="og:type" content="website">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Drift — ambient sound mixer">
-    <meta name="twitter:description" content="Layer rain, fire, cafe chatter, ocean waves, and more. Create your perfect ambient soundscape.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #08080c;
+            --bg-card: #0e0e14;
+            --text: #d8d4cc;
+            --text-secondary: #7a7570;
+            --text-dim: #3a3835;
+            --accent: #7a8a6a;
+            --accent-glow: rgba(122, 138, 106, 0.15);
+        }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 40px 24px;
+            position: relative;
+        }
+        .hero-logo {
+            font-family: 'Space Mono', monospace;
+            font-size: 64px;
+            font-weight: 700;
+            letter-spacing: 16px;
+            text-shadow: 0 0 60px var(--accent-glow);
+            margin-bottom: 16px;
+        }
+        .hero-tagline {
+            font-size: 20px;
+            font-weight: 300;
+            color: var(--text-secondary);
+            max-width: 500px;
+            line-height: 1.6;
+            margin-bottom: 40px;
+        }
+        .cta-btn {
+            display: inline-block;
+            background: var(--accent);
+            color: var(--bg);
+            font-family: 'Space Mono', monospace;
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            text-decoration: none;
+            padding: 16px 40px;
+            border-radius: 8px;
+            transition: all 0.3s;
+            box-shadow: 0 0 30px var(--accent-glow);
+        }
+        .cta-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 50px var(--accent-glow);
+        }
+        .hero-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .try-btn {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.15);
+            color: var(--text-secondary);
+            font-family: 'Space Mono', monospace;
+            font-size: 12px;
+            letter-spacing: 2px;
+            padding: 14px 28px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .try-btn:hover {
+            border-color: var(--accent);
+            color: var(--text);
+        }
+        .try-btn.playing {
+            border-color: var(--accent);
+            color: var(--accent);
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+        .features {
+            padding: 80px 24px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+        .feature-card {
+            background: var(--bg-card);
+            border: 1px solid rgba(255,255,255,0.04);
+            border-radius: 12px;
+            padding: 32px 24px;
+            text-align: center;
+        }
+        .feature-icon { font-size: 32px; margin-bottom: 16px; }
+        .feature-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .feature-desc {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+        .sounds-section {
+            padding: 80px 24px;
+            text-align: center;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .section-title {
+            font-family: 'Space Mono', monospace;
+            font-size: 12px;
+            letter-spacing: 6px;
+            color: var(--text-dim);
+            margin-bottom: 40px;
+            text-transform: uppercase;
+        }
+        .sound-tags {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+        .sound-tag {
+            background: var(--bg-card);
+            border: 1px solid rgba(255,255,255,0.04);
+            border-radius: 20px;
+            padding: 8px 20px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+        .preset-section {
+            padding: 80px 24px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .preset-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+        .preset-card {
+            background: var(--bg-card);
+            border: 1px solid rgba(255,255,255,0.04);
+            border-radius: 12px;
+            padding: 24px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            color: var(--text);
+        }
+        .preset-card:hover {
+            border-color: rgba(122,138,106,0.3);
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+        .preset-name {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+        .preset-layers {
+            font-size: 12px;
+            color: var(--text-dim);
+        }
+        .bottom-cta {
+            text-align: center;
+            padding: 80px 24px;
+        }
+        .bottom-cta p {
+            font-size: 24px;
+            font-weight: 300;
+            color: var(--text-secondary);
+            margin-bottom: 32px;
+        }
+        .footer {
+            text-align: center;
+            padding: 40px 24px;
+            border-top: 1px solid rgba(255,255,255,0.04);
+        }
+        .footer-text {
+            font-family: 'Space Mono', monospace;
+            font-size: 9px;
+            color: var(--text-dim);
+            letter-spacing: 2px;
+        }
+        .footer-text a { color: var(--text-secondary); text-decoration: none; }
+        @media (max-width: 600px) {
+            .hero-logo { font-size: 40px; letter-spacing: 10px; }
+            .features-grid { grid-template-columns: 1fr; }
+            .preset-grid { grid-template-columns: 1fr; }
+        }
+    </style>
 </head>
 <body>
-    <canvas id="viz-canvas"></canvas>
-
-    <div class="app">
-        <header class="header">
-            <h1 class="logo">DRIFT</h1>
-            <p class="tagline">ambient sound mixer</p>
-        </header>
-
-        <div class="mixer-grid" id="mixer-grid">
-            <!-- Layers injected by JS -->
+    <section class="hero">
+        <h1 class="hero-logo">DRIFT</h1>
+        <p class="hero-tagline">Layer rain over cafe chatter. Add fireplace crackle to brown noise. Build your perfect soundscape in seconds. Free, forever.</p>
+        <div class="hero-actions">
+            <a href="app.html" class="cta-btn">Start Mixing</a>
+            <button class="try-btn" id="try-btn" onclick="togglePreview()">▶ Preview</button>
         </div>
+    </section>
 
-        <div class="controls-bar">
-            <button class="master-toggle" id="master-toggle" title="Play/Pause all">
-                <span id="toggle-icon">▶</span>
-            </button>
-            <div class="master-volume">
-                <label class="vol-label">MASTER</label>
-                <input type="range" id="master-volume" min="0" max="100" value="70" class="vol-slider">
+    <section class="features">
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🎚</div>
+                <h3 class="feature-title">Layer Anything</h3>
+                <p class="feature-desc">Mix rain with vinyl crackle. Add cafe chatter over brown noise. 16+ sounds, infinite combinations.</p>
             </div>
-            <div class="preset-controls">
-                <button class="preset-btn" id="save-preset" title="Save mix">Save Mix</button>
-                <button class="preset-btn" id="share-btn" title="Share mix">Share</button>
+            <div class="feature-card">
+                <div class="feature-icon">💾</div>
+                <h3 class="feature-title">Save Your Mixes</h3>
+                <p class="feature-desc">Found your perfect combination? Save it locally. Come back to it anytime. No account needed.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🔗</div>
+                <h3 class="feature-title">Share a Vibe</h3>
+                <p class="feature-desc">Every mix has a unique URL. Send someone your "sunday 4am" and they'll get it immediately.</p>
             </div>
         </div>
+    </section>
 
-        <div class="presets-section">
-            <h3 class="section-header">START HERE</h3>
-            <div class="presets-list" id="default-mixes"></div>
+    <section class="sounds-section">
+        <h2 class="section-title">16 Ambient Layers</h2>
+        <div class="sound-tags">
+            <span class="sound-tag">🌧 Rain</span>
+            <span class="sound-tag">⛆ Heavy Rain</span>
+            <span class="sound-tag">⛈ Thunder</span>
+            <span class="sound-tag">💨 Wind</span>
+            <span class="sound-tag">❄ Snow Silence</span>
+            <span class="sound-tag">🔥 Fireplace</span>
+            <span class="sound-tag">💿 Vinyl Crackle</span>
+            <span class="sound-tag">☕ Cafe</span>
+            <span class="sound-tag">🚂 Train Cabin</span>
+            <span class="sound-tag">🦗 Crickets</span>
+            <span class="sound-tag">🏖 Ocean Waves</span>
+            <span class="sound-tag">🐦 Forest Birds</span>
+            <span class="sound-tag">🍃 Leaves</span>
+            <span class="sound-tag">🎵 Deep Drone</span>
+            <span class="sound-tag">🟤 Brown Noise</span>
+            <span class="sound-tag">⬜ White Noise</span>
         </div>
+    </section>
 
-        <div class="presets-section" id="presets-section">
-            <h3 class="section-header">Your Mixes</h3>
-            <div class="presets-list" id="presets-list"></div>
+    <section class="preset-section">
+        <h2 class="section-title">Popular Mixes</h2>
+        <div class="preset-grid">
+            <a class="preset-card" href="app.html?mix=eyJyYWluIjo2MCwiY2FmZSI6NDUsInZpbnlsIjoyMH0=">
+                <div class="preset-name">Rainy Cafe</div>
+                <div class="preset-layers">rain · cafe · vinyl crackle</div>
+            </a>
+            <a class="preset-card" href="app.html?mix=eyJicm93bi1ub2lzZSI6NzAsInJhaW4iOjI1fQ==">
+                <div class="preset-name">Deep Focus</div>
+                <div class="preset-layers">brown noise · rain</div>
+            </a>
+            <a class="preset-card" href="app.html?mix=eyJ0cmFpbiI6NjUsInJhaW4iOjMwLCJkcm9uZSI6MTV9">
+                <div class="preset-name">Midnight Train</div>
+                <div class="preset-layers">train cabin · rain · drone</div>
+            </a>
+            <a class="preset-card" href="app.html?mix=eyJiaXJkcyI6NTAsImxlYXZlcyI6MzAsIndpbmQiOjIwfQ==">
+                <div class="preset-name">Sunday Morning</div>
+                <div class="preset-layers">forest birds · leaves · wind</div>
+            </a>
+            <a class="preset-card" href="app.html?mix=eyJmaXJlIjo3MCwic25vdyI6NDAsIndpbmQiOjI1fQ==">
+                <div class="preset-name">Winter Cabin</div>
+                <div class="preset-layers">fireplace · snow · wind</div>
+            </a>
+            <a class="preset-card" href="app.html?mix=eyJ3YXZlcyI6NzUsImNyaWNrZXRzIjozMCwiZHJvbmUiOjEwfQ==">
+                <div class="preset-name">Ocean at Night</div>
+                <div class="preset-layers">waves · crickets · drone</div>
+            </a>
         </div>
+    </section>
 
-        <footer class="footer">
-            <p class="footer-text">DRIFT — from the makers of <a href="https://static-fm.vercel.app" target="_blank">Static FM</a></p>
-        </footer>
-    </div>
+    <section class="bottom-cta">
+        <p>the world is loud. make your own quiet.</p>
+        <a href="app.html" class="cta-btn">Start Mixing — Free</a>
+    </section>
 
-    <script src="engine.js"></script>
+    <footer class="footer">
+        <p class="footer-text">DRIFT — from the makers of <a href="https://static-fm.vercel.app">Static FM</a> · built by Claude & Claudia</p>
+    </footer>
+
+    <script>
+    // Mini preview — rainy cafe mix on the landing page
+    let previewCtx = null;
+    let previewPlaying = false;
+    let previewNodes = [];
+
+    function togglePreview() {
+        const btn = document.getElementById('try-btn');
+        if (previewPlaying) {
+            previewNodes.forEach(n => { try { n.stop(); } catch(e) {} });
+            previewNodes = [];
+            previewPlaying = false;
+            btn.textContent = '▶ Preview';
+            btn.classList.remove('playing');
+            return;
+        }
+        if (!previewCtx) previewCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (previewCtx.state === 'suspended') previewCtx.resume();
+
+        const master = previewCtx.createGain();
+        master.gain.value = 0.4;
+        master.connect(previewCtx.destination);
+
+        // Rain
+        const rainBuf = previewCtx.createBuffer(1, previewCtx.sampleRate * 2, previewCtx.sampleRate);
+        const rd = rainBuf.getChannelData(0);
+        for (let i = 0; i < rd.length; i++) rd[i] = Math.random() * 2 - 1;
+        const rain = previewCtx.createBufferSource();
+        rain.buffer = rainBuf;
+        rain.loop = true;
+        const rainF = previewCtx.createBiquadFilter();
+        rainF.type = 'bandpass';
+        rainF.frequency.value = 800;
+        rainF.Q.value = 0.5;
+        const rainG = previewCtx.createGain();
+        rainG.gain.value = 0.08;
+        rain.connect(rainF);
+        rainF.connect(rainG);
+        rainG.connect(master);
+        rain.start();
+
+        // Cafe murmur
+        const cafeBuf = previewCtx.createBuffer(1, previewCtx.sampleRate * 2, previewCtx.sampleRate);
+        const cd = cafeBuf.getChannelData(0);
+        for (let i = 0; i < cd.length; i++) cd[i] = Math.random() * 2 - 1;
+        const cafe = previewCtx.createBufferSource();
+        cafe.buffer = cafeBuf;
+        cafe.loop = true;
+        const cafeF = previewCtx.createBiquadFilter();
+        cafeF.type = 'bandpass';
+        cafeF.frequency.value = 400;
+        cafeF.Q.value = 0.8;
+        const cafeG = previewCtx.createGain();
+        cafeG.gain.value = 0.05;
+        cafe.connect(cafeF);
+        cafeF.connect(cafeG);
+        cafeG.connect(master);
+        cafe.start();
+
+        previewNodes = [rain, cafe];
+        previewPlaying = true;
+        btn.textContent = '⏸ Preview';
+        btn.classList.add('playing');
+    }
+    </script>
 </body>
 </html>
