@@ -828,7 +828,29 @@ const FEATURED_LAYERS = ['rain', 'brown-noise', 'fire', 'wind', 'snow', 'drone']
 let showAllLayers = false;
 
 // Waveform patterns per layer category
+// Per-layer waveform patterns (unique visual signature for each sound)
 const WAVE_PATTERNS = {
+    // Weather
+    'rain': (x, t) => Math.sin(x * 5 + t) * 0.5 + Math.sin(x * 13 + t * 2.1) * 0.3 + Math.sin(x * 21 + t * 0.7) * 0.2,
+    'heavy-rain': (x, t) => Math.sin(x * 3 + t * 1.5) * 0.6 + Math.sin(x * 9 + t * 2.5) * 0.4,
+    'thunder': (x, t) => Math.sin(x * 1.5 + t * 0.3) * 0.9 * Math.exp(-((x - Math.sin(t * 0.2) * 2) ** 2) * 0.3),
+    'wind': (x, t) => Math.sin(x * 2 + t * 0.8) * 0.6 + Math.sin(x * 0.7 + t * 0.3) * 0.4,
+    'snow': (x, t) => Math.sin(x * 1 + t * 0.2) * 0.3 + Math.sin(x * 3 + t * 0.5) * 0.15,
+    // Spaces
+    'fire': (x, t) => Math.sin(x * 8 + t * 3) * 0.3 + (Math.random() * 0.5) * Math.sin(x * 2 + t),
+    'vinyl': (x, t) => Math.sin(x * 15 + t * 4) * 0.2 + (Math.random() > 0.95 ? 0.8 : 0),
+    'cafe': (x, t) => Math.sin(x * 4 + t * 0.7) * 0.3 + Math.sin(x * 11 + t * 1.8) * 0.2 + Math.random() * 0.15,
+    'train': (x, t) => Math.sin(x * 2 + t * 2.2) * 0.5 * (0.5 + 0.5 * Math.sin(t * 2.2)),
+    // Nature
+    'crickets': (x, t) => Math.sin(x * 20 + t * 5) * 0.3 * (Math.sin(t * 3 + x) > 0.3 ? 1 : 0.1),
+    'waves': (x, t) => Math.sin(x * 1.5 + t * 0.4) * 0.7 + Math.sin(x * 0.5 + t * 0.15) * 0.3,
+    'birds': (x, t) => Math.sin(x * 10 + t * 4) * 0.4 * (Math.sin(t * 2 + x * 3) > 0.5 ? 1 : 0.15),
+    'leaves': (x, t) => Math.sin(x * 6 + t * 1.2) * 0.4 + Math.sin(x * 3 + t * 0.6) * 0.3,
+    // Textures (these use AnalyserNode for real data, but fallback here)
+    'drone': (x, t) => Math.sin(x * 2 + t * 0.3) * 0.8 + Math.sin(x * 0.5 + t * 0.1) * 0.2,
+    'brown-noise': (x, t) => Math.sin(x * 3 + t * 0.5) * 0.5 + Math.sin(x * 7 + t * 0.9) * 0.3 + Math.sin(x * 1 + t * 0.2) * 0.2,
+    'white-noise': (x, t) => (Math.random() - 0.5) * 0.8 + Math.sin(x * 20 + t) * 0.2,
+    // Category fallbacks
     weather: (x, t) => Math.sin(x * 4 + t) * 0.7 + Math.sin(x * 7 + t * 1.3) * 0.3,
     spaces: (x, t) => Math.sin(x * 3 + t * 0.5) * 0.5 + Math.random() * 0.3,
     nature: (x, t) => Math.sin(x * 6 + t) * 0.4 + Math.sin(x * 12 + t * 2) * 0.4,
@@ -872,8 +894,8 @@ function drawWaveform(canvas, category, volume, time, analyserData) {
             else ctx.lineTo(x, y);
         }
     } else {
-        // Fallback: synthetic pattern
-        const pattern = WAVE_PATTERNS[category] || WAVE_PATTERNS.textures;
+        // Per-layer synthetic pattern (falls back to category if no layer-specific pattern)
+        const pattern = WAVE_PATTERNS[canvas._layerId] || WAVE_PATTERNS[category] || WAVE_PATTERNS.textures;
         for (let x = 0; x < w; x++) {
             const nx = x / w * Math.PI * 4;
             const y = h / 2 + pattern(nx, time) * (h * 0.35) * volume;
@@ -902,6 +924,7 @@ function buildLayerCard(layer, parent) {
 
     // Animate waveform (real audio data when available, fallback to synthetic)
     const canvas = card.querySelector('.wave-canvas');
+    canvas._layerId = layer.id;
     let animFrame;
     function animateWave() {
         const slider = card.querySelector('.layer-slider');
@@ -941,7 +964,7 @@ function buildLayerCard(layer, parent) {
     parent.appendChild(card);
 }
 
-// Build mixer UI
+// Build mixer UI — single set of cards, toggle visibility
 function buildMixer() {
     const grid = document.getElementById('mixer-grid');
     grid.innerHTML = '';
@@ -949,18 +972,6 @@ function buildMixer() {
     // Check if a mix is loading from URL (show all in that case)
     const hasMixParam = new URLSearchParams(window.location.search).has('mix');
     if (hasMixParam) showAllLayers = true;
-
-    // In collapsed mode, render featured layers first in curated order
-    if (!showAllLayers) {
-        const featuredSection = document.createElement('div');
-        featuredSection.className = 'mixer-category';
-        featuredSection.id = 'featured-layers';
-        FEATURED_LAYERS.forEach(id => {
-            const layer = LAYERS.find(l => l.id === id);
-            if (layer) buildLayerCard(layer, featuredSection);
-        });
-        grid.appendChild(featuredSection);
-    }
 
     const categories = {};
     LAYERS.forEach(layer => {
@@ -971,34 +982,48 @@ function buildMixer() {
     Object.entries(categories).forEach(([cat, layers]) => {
         const section = document.createElement('div');
         section.className = 'mixer-category';
-        if (!showAllLayers) section.style.display = 'none';
 
         const catHeader = document.createElement('h3');
         catHeader.className = 'cat-header';
         catHeader.textContent = cat.toUpperCase();
+        if (!showAllLayers) catHeader.style.display = 'none';
         section.appendChild(catHeader);
 
-        layers.forEach(layer => buildLayerCard(layer, section));
+        layers.forEach(layer => {
+            buildLayerCard(layer, section);
+            // In collapsed mode, hide non-featured layers
+            if (!showAllLayers && !FEATURED_LAYERS.includes(layer.id)) {
+                const card = section.lastElementChild;
+                card.classList.add('hidden-layer');
+            }
+        });
 
         grid.appendChild(section);
     });
 
-    // "Show all layers" toggle (only when collapsed)
-    if (!showAllLayers) {
-        const toggle = document.createElement('button');
-        toggle.className = 'show-all-btn';
-        toggle.id = 'show-all-btn';
-        toggle.textContent = 'show all 16 layers';
-        toggle.addEventListener('click', () => {
-            showAllLayers = true;
-            // Hide featured section, show full categorized list
-            // Remove featured section entirely to avoid duplicates
-            const featured = document.getElementById('featured-layers');
-            if (featured) featured.remove();
-            // Show all category sections
-            document.querySelectorAll('.mixer-category').forEach(el => el.style.display = '');
-            toggle.remove();
-        });
+    // Toggle between featured and full view
+    const toggle = document.createElement('button');
+    toggle.className = 'show-all-btn';
+    toggle.id = 'show-all-btn';
+    if (showAllLayers) toggle.style.display = 'none';
+    toggle.textContent = 'show all 16 layers';
+    toggle.addEventListener('click', () => {
+        showAllLayers = !showAllLayers;
+        if (showAllLayers) {
+            document.querySelectorAll('.hidden-layer').forEach(el => el.classList.remove('hidden-layer'));
+            document.querySelectorAll('.cat-header').forEach(el => el.style.display = '');
+            toggle.textContent = 'show featured';
+        } else {
+            LAYERS.forEach(l => {
+                if (!FEATURED_LAYERS.includes(l.id)) {
+                    const card = document.getElementById(`layer-${l.id}`);
+                    if (card) card.classList.add('hidden-layer');
+                }
+            });
+            document.querySelectorAll('.cat-header').forEach(el => el.style.display = 'none');
+            toggle.textContent = 'show all 16 layers';
+        }
+    });
         grid.appendChild(toggle);
     }
 }
