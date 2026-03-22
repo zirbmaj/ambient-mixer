@@ -309,10 +309,14 @@ body {
     align-items: center;
     gap: 20px;
     padding: 18px 24px;
-    background: linear-gradient(135deg, var(--bg-card) 0%, rgba(14, 14, 20, 0.8) 100%);
+    background: linear-gradient(135deg, var(--bg-card) 0%, rgba(14, 14, 20, 0.95) 100%);
     border: 1px solid var(--border);
     border-radius: 10px;
-    margin-bottom: 32px;
+    margin-bottom: 0;
+    position: sticky;
+    bottom: 12px;
+    z-index: 10;
+    backdrop-filter: blur(12px);
 }
 
 .master-toggle {

@@ -839,12 +839,18 @@ function togglePlayback() {
             if (state.active && state.gain) {
                 state.gain.gain.linearRampToValueAtTime(state.volume * 0.3, audioCtx.currentTime + 0.3);
             }
+            if (state.active && state.type === 'sample' && state.audio) {
+                state.audio.play().catch(() => {});
+            }
         });
     } else {
-        // Fade all to zero
+        // Fade all to zero and pause samples
         Object.values(layerStates).forEach(state => {
             if (state.gain) {
                 state.gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.3);
+            }
+            if (state.type === 'sample' && state.audio) {
+                state.audio.pause();
             }
         });
     }
@@ -1241,6 +1247,19 @@ async function publishMix() {
 }
 
 // Event listeners
+// Reset all layers
+function resetAll() {
+    LAYERS.forEach(layer => {
+        const slider = document.getElementById(`slider-${layer.id}`);
+        if (slider) {
+            slider.value = 0;
+            slider.dispatchEvent(new Event('input'));
+        }
+    });
+    if (isPlaying) togglePlayback();
+    uiClick();
+}
+
 document.getElementById('master-toggle').addEventListener('click', togglePlayback);
 document.getElementById('master-volume').addEventListener('input', (e) => {
     setMasterVolume(e.target.value / 100);
@@ -1248,6 +1267,7 @@ document.getElementById('master-volume').addEventListener('input', (e) => {
 document.getElementById('save-preset').addEventListener('click', savePreset);
 document.getElementById('share-btn').addEventListener('click', shareMix);
 document.getElementById('publish-btn')?.addEventListener('click', publishMix);
+document.getElementById('reset-btn')?.addEventListener('click', resetAll);
 
 // Subtle share nudge after 30 seconds of active mixing
 let mixStartTime = null;
