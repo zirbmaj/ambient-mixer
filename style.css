@@ -358,9 +358,9 @@ body {
     color: var(--accent);
 }
 
-/* Mobile start overlay */
+/* Start overlay — initializes audio on user gesture */
 .mobile-start-overlay {
-    display: none;
+    display: flex;
     position: fixed;
     top: 0;
     left: 0;
@@ -371,6 +371,7 @@ body {
     align-items: center;
     justify-content: center;
     cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .start-content {
@@ -401,9 +402,6 @@ body {
 
 /* Responsive */
 @media (max-width: 600px) {
-    .mobile-start-overlay {
-        display: flex;
-    }
     .logo {
         font-size: 28px;
         letter-spacing: 8px;

@@ -943,14 +943,27 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
-// Mobile start overlay — tap to init audio
+// Start overlay — tap to init audio (required for iOS Safari)
 const mobileOverlay = document.getElementById('mobile-start');
 if (mobileOverlay) {
-    mobileOverlay.addEventListener('click', () => {
-        initAudio();
-        if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
-        mobileOverlay.style.display = 'none';
-    });
+    mobileOverlay.addEventListener('touchend', unlockAudio);
+    mobileOverlay.addEventListener('click', unlockAudio);
+}
+
+function unlockAudio() {
+    initAudio();
+    if (audioCtx) {
+        // Play a silent buffer to unlock iOS audio
+        const silentBuffer = audioCtx.createBuffer(1, 1, audioCtx.sampleRate);
+        const silentSource = audioCtx.createBufferSource();
+        silentSource.buffer = silentBuffer;
+        silentSource.connect(audioCtx.destination);
+        silentSource.start();
+        audioCtx.resume().then(() => {
+            console.log('AudioContext unlocked:', audioCtx.state);
+        });
+    }
+    if (mobileOverlay) mobileOverlay.style.display = 'none';
 }
 
 // Init
