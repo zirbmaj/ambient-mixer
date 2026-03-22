@@ -737,10 +737,18 @@ function togglePlayback() {
     document.getElementById('toggle-icon').textContent = isPlaying ? '⏸' : '▶';
 }
 
+// Top layers shown by default (from analytics data)
+const FEATURED_LAYERS = ['rain', 'fire', 'snow', 'wind', 'brown-noise', 'drone'];
+let showAllLayers = false;
+
 // Build mixer UI
 function buildMixer() {
     const grid = document.getElementById('mixer-grid');
     grid.innerHTML = '';
+
+    // Check if a mix is loading from URL (show all in that case)
+    const hasMixParam = new URLSearchParams(window.location.search).has('mix');
+    if (hasMixParam) showAllLayers = true;
 
     const categories = {};
     LAYERS.forEach(layer => {
@@ -751,6 +759,7 @@ function buildMixer() {
     Object.entries(categories).forEach(([cat, layers]) => {
         const section = document.createElement('div');
         section.className = 'mixer-category';
+        if (!showAllLayers) section.classList.add('collapsible');
 
         const catHeader = document.createElement('h3');
         catHeader.className = 'cat-header';
@@ -761,6 +770,9 @@ function buildMixer() {
             const card = document.createElement('div');
             card.className = 'layer-card';
             card.id = `layer-${layer.id}`;
+            if (!showAllLayers && !FEATURED_LAYERS.includes(layer.id)) {
+                card.classList.add('hidden-layer');
+            }
 
             card.innerHTML = `
                 <div class="layer-icon">${layer.icon}</div>
@@ -794,6 +806,21 @@ function buildMixer() {
 
         grid.appendChild(section);
     });
+
+    // "Show all layers" toggle (only when collapsed)
+    if (!showAllLayers) {
+        const toggle = document.createElement('button');
+        toggle.className = 'show-all-btn';
+        toggle.id = 'show-all-btn';
+        toggle.textContent = 'show all 16 layers';
+        toggle.addEventListener('click', () => {
+            showAllLayers = true;
+            document.querySelectorAll('.hidden-layer').forEach(el => el.classList.remove('hidden-layer'));
+            document.querySelectorAll('.mixer-category').forEach(el => el.classList.remove('collapsible'));
+            toggle.remove();
+        });
+        grid.appendChild(toggle);
+    }
 }
 
 // Presets (localStorage)
