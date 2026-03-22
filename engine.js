@@ -1169,10 +1169,41 @@ function renderPresets() {
         const div = document.createElement('div');
         div.className = 'preset-item';
         const layerCount = Object.keys(preset.levels).length;
-        div.innerHTML = `
-            <span class="preset-name">${preset.name}</span>
-            <span class="preset-meta">${layerCount} layer${layerCount !== 1 ? 's' : ''}</span>
-        `;
+        const nameSpan = document.createElement('span');
+        nameSpan.className = 'preset-name';
+        nameSpan.textContent = preset.name;
+        nameSpan.title = 'click to rename';
+        nameSpan.style.cursor = 'text';
+
+        // Click name to rename inline
+        nameSpan.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.value = preset.name;
+            input.className = 'preset-rename-input';
+            input.maxLength = 50;
+            input.style.cssText = 'background:transparent;border:1px solid var(--border);color:var(--text);font-size:inherit;font-family:inherit;padding:2px 4px;border-radius:4px;width:120px;outline:none;';
+            nameSpan.replaceWith(input);
+            input.focus();
+            input.select();
+            const save = () => {
+                const newName = input.value.trim() || preset.name;
+                const presets = getPresets();
+                presets[i].name = newName;
+                localStorage.setItem('drift_presets', JSON.stringify(presets));
+                renderPresets();
+            };
+            input.addEventListener('keydown', (e) => { if (e.key === 'Enter') save(); if (e.key === 'Escape') renderPresets(); });
+            input.addEventListener('blur', save);
+        });
+
+        const metaSpan = document.createElement('span');
+        metaSpan.className = 'preset-meta';
+        metaSpan.textContent = `${layerCount} layer${layerCount !== 1 ? 's' : ''}`;
+
+        div.appendChild(nameSpan);
+        div.appendChild(metaSpan);
         div.addEventListener('click', () => loadPreset(preset.levels));
         list.appendChild(div);
     });
