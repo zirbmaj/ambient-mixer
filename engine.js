@@ -595,6 +595,30 @@ let isPlaying = false;
 let layerStates = {};
 
 // Init audio context only (no layers)
+// UI Sounds — feel, don't hear
+function uiTick() {
+    if (!audioCtx) return;
+    const osc = audioCtx.createOscillator();
+    osc.type = 'sine';
+    osc.frequency.value = 800;
+    const g = audioCtx.createGain();
+    g.gain.setValueAtTime(0.06, audioCtx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
+    osc.connect(g); g.connect(audioCtx.destination);
+    osc.start(); osc.stop(audioCtx.currentTime + 0.05);
+}
+
+function uiClick() {
+    if (!audioCtx) return;
+    const buf = audioCtx.createBuffer(1, audioCtx.sampleRate * 0.02, audioCtx.sampleRate);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * Math.exp(-i / (d.length * 0.3));
+    const src = audioCtx.createBufferSource(); src.buffer = buf;
+    const f = audioCtx.createBiquadFilter(); f.type = 'highpass'; f.frequency.value = 2000;
+    const g = audioCtx.createGain(); g.gain.value = 0.04;
+    src.connect(f); f.connect(g); g.connect(audioCtx.destination); src.start();
+}
+
 function initAudio() {
     if (audioCtx) return;
     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -798,6 +822,7 @@ function togglePlayback() {
     if (!audioCtx) {
         initAudio();
     }
+    uiTick();
     if (audioCtx.state === 'suspended') {
         audioCtx.resume();
     }
@@ -1084,6 +1109,7 @@ function savePreset() {
 function loadPreset(levels) {
     if (!audioCtx) initAudio();
     if (!isPlaying) togglePlayback();
+    uiClick();
     // Track preset load
     if (window.nwlTrack) {
         window.nwlTrack('preset_load', { layers: Object.keys(levels), count: Object.keys(levels).length });
