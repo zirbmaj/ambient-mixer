@@ -738,8 +738,41 @@ function togglePlayback() {
 }
 
 // Top layers shown by default (from analytics data)
-const FEATURED_LAYERS = ['rain', 'fire', 'snow', 'wind', 'brown-noise', 'drone'];
+// Ordered: familiar → trending → cozy → simple → unique → experimental
+const FEATURED_LAYERS = ['rain', 'brown-noise', 'fire', 'wind', 'snow', 'drone'];
 let showAllLayers = false;
+
+// Build a single layer card
+function buildLayerCard(layer, parent) {
+    const card = document.createElement('div');
+    card.className = 'layer-card';
+    card.id = `layer-${layer.id}`;
+    card.innerHTML = `
+        <div class="layer-icon">${layer.icon}</div>
+        <div class="layer-name">${layer.name}</div>
+        <input type="range" class="layer-slider" id="slider-${layer.id}"
+            min="0" max="100" value="0" />
+        <div class="layer-val" id="val-${layer.id}">0%</div>
+    `;
+    const slider = card.querySelector('.layer-slider');
+    let wasActive = false;
+    slider.addEventListener('input', (e) => {
+        const val = e.target.value / 100;
+        if (!audioCtx) initAudio();
+        if (!isPlaying) togglePlayback();
+        setLayerVolume(layer.id, val);
+        const isActive = val > 0;
+        card.classList.toggle('active', isActive);
+        card.querySelector('.layer-val').textContent = `${e.target.value}%`;
+        if (isActive && !wasActive && window.nwlTrack) {
+            window.nwlTrack('layer_activate', { layer: layer.id, name: layer.name, category: layer.category });
+        }
+        wasActive = isActive;
+        updateSuggestions();
+        updateNowPlaying();
+    });
+    parent.appendChild(card);
+}
 
 // Build mixer UI
 function buildMixer() {
@@ -750,6 +783,18 @@ function buildMixer() {
     const hasMixParam = new URLSearchParams(window.location.search).has('mix');
     if (hasMixParam) showAllLayers = true;
 
+    // In collapsed mode, render featured layers first in curated order
+    if (!showAllLayers) {
+        const featuredSection = document.createElement('div');
+        featuredSection.className = 'mixer-category';
+        featuredSection.id = 'featured-layers';
+        FEATURED_LAYERS.forEach(id => {
+            const layer = LAYERS.find(l => l.id === id);
+            if (layer) buildLayerCard(layer, featuredSection);
+        });
+        grid.appendChild(featuredSection);
+    }
+
     const categories = {};
     LAYERS.forEach(layer => {
         if (!categories[layer.category]) categories[layer.category] = [];
@@ -759,50 +804,14 @@ function buildMixer() {
     Object.entries(categories).forEach(([cat, layers]) => {
         const section = document.createElement('div');
         section.className = 'mixer-category';
-        if (!showAllLayers) section.classList.add('collapsible');
+        if (!showAllLayers) section.style.display = 'none';
 
         const catHeader = document.createElement('h3');
         catHeader.className = 'cat-header';
         catHeader.textContent = cat.toUpperCase();
         section.appendChild(catHeader);
 
-        layers.forEach(layer => {
-            const card = document.createElement('div');
-            card.className = 'layer-card';
-            card.id = `layer-${layer.id}`;
-            if (!showAllLayers && !FEATURED_LAYERS.includes(layer.id)) {
-                card.classList.add('hidden-layer');
-            }
-
-            card.innerHTML = `
-                <div class="layer-icon">${layer.icon}</div>
-                <div class="layer-name">${layer.name}</div>
-                <input type="range" class="layer-slider" id="slider-${layer.id}"
-                    min="0" max="100" value="0" />
-                <div class="layer-val" id="val-${layer.id}">0%</div>
-            `;
-
-            const slider = card.querySelector('.layer-slider');
-            let wasActive = false;
-            slider.addEventListener('input', (e) => {
-                const val = e.target.value / 100;
-                if (!audioCtx) initAudio();
-                if (!isPlaying) togglePlayback();
-                setLayerVolume(layer.id, val);
-                const isActive = val > 0;
-                card.classList.toggle('active', isActive);
-                card.querySelector('.layer-val').textContent = `${e.target.value}%`;
-                // Track layer activation
-                if (isActive && !wasActive && window.nwlTrack) {
-                    window.nwlTrack('layer_activate', { layer: layer.id, name: layer.name, category: layer.category });
-                }
-                wasActive = isActive;
-                updateSuggestions();
-                updateNowPlaying();
-            });
-
-            section.appendChild(card);
-        });
+        layers.forEach(layer => buildLayerCard(layer, section));
 
         grid.appendChild(section);
     });
@@ -815,8 +824,10 @@ function buildMixer() {
         toggle.textContent = 'show all 16 layers';
         toggle.addEventListener('click', () => {
             showAllLayers = true;
-            document.querySelectorAll('.hidden-layer').forEach(el => el.classList.remove('hidden-layer'));
-            document.querySelectorAll('.mixer-category').forEach(el => el.classList.remove('collapsible'));
+            // Hide featured section, show full categorized list
+            const featured = document.getElementById('featured-layers');
+            if (featured) featured.style.display = 'none';
+            document.querySelectorAll('.mixer-category').forEach(el => el.style.display = '');
             toggle.remove();
         });
         grid.appendChild(toggle);
