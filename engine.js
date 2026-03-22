@@ -523,9 +523,18 @@ let layerStates = {};
 function initAudio() {
     if (audioCtx) return;
     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    // Compressor to prevent clipping when stacking layers
+    const compressor = audioCtx.createDynamicsCompressor();
+    compressor.threshold.value = -20;
+    compressor.knee.value = 10;
+    compressor.ratio.value = 4;
+    compressor.attack.value = 0.003;
+    compressor.release.value = 0.25;
+    compressor.connect(audioCtx.destination);
+
     masterGain = audioCtx.createGain();
     masterGain.gain.value = 0.7;
-    masterGain.connect(audioCtx.destination);
+    masterGain.connect(compressor);
 
     // Create all layers
     LAYERS.forEach(layer => {
@@ -545,7 +554,10 @@ function setLayerVolume(layerId, vol) {
     state.volume = vol;
     state.active = vol > 0;
     if (state.gain) {
-        state.gain.gain.linearRampToValueAtTime(vol * 0.3, audioCtx.currentTime + 0.1);
+        // Cancel any pending ramps to avoid conflicts
+        state.gain.gain.cancelScheduledValues(audioCtx.currentTime);
+        state.gain.gain.setValueAtTime(state.gain.gain.value, audioCtx.currentTime);
+        state.gain.gain.linearRampToValueAtTime(vol * 0.15, audioCtx.currentTime + 0.2);
     }
 }
 
