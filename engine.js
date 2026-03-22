@@ -835,12 +835,18 @@ const WAVE_PATTERNS = {
     textures: (x, t) => Math.sin(x * 2 + t * 0.3) * 0.8 + Math.sin(x * 0.5 + t * 0.1) * 0.2,
 };
 
+// Smoothing buffers per canvas
+const smoothBuffers = new WeakMap();
+
 function drawWaveform(canvas, category, volume, time, analyserData) {
     const ctx = canvas.getContext('2d');
     const w = canvas.width;
     const h = canvas.height;
     ctx.clearRect(0, 0, w, h);
-    if (volume <= 0) return;
+    if (volume <= 0) {
+        smoothBuffers.delete(canvas);
+        return;
+    }
 
     const opacity = Math.min(volume * 1.5, 0.6);
     ctx.beginPath();
@@ -848,12 +854,20 @@ function drawWaveform(canvas, category, volume, time, analyserData) {
     ctx.lineWidth = 1.5;
 
     if (analyserData && analyserData.length > 0) {
-        // Real audio data from AnalyserNode
+        // Get or create smoothing buffer
+        let smooth = smoothBuffers.get(canvas);
+        if (!smooth || smooth.length !== w) {
+            smooth = new Float32Array(w);
+            smoothBuffers.set(canvas, smooth);
+        }
+
+        // Real audio data with smoothing (lerp 30% new, 70% previous)
         const step = analyserData.length / w;
         for (let x = 0; x < w; x++) {
             const dataIndex = Math.floor(x * step);
-            const normalized = (analyserData[dataIndex] - 128) / 128;
-            const y = h / 2 + normalized * (h * 0.4) * volume;
+            const raw = (analyserData[dataIndex] - 128) / 128;
+            smooth[x] = smooth[x] * 0.7 + raw * 0.3;
+            const y = h / 2 + smooth[x] * (h * 0.4) * volume;
             if (x === 0) ctx.moveTo(x, y);
             else ctx.lineTo(x, y);
         }
