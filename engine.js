@@ -1527,6 +1527,17 @@ try {
     const hasMix = loadMixFromUrl();
     if (hasMix) {
         document.querySelector('.tagline').textContent = 'someone shared a mix with you — click anywhere to listen';
+    } else {
+        // Cold start: pre-load rainy cafe visually so the mixer isn't empty
+        const defaultMix = { rain: 60, cafe: 45, vinyl: 20 };
+        Object.entries(defaultMix).forEach(([id, val]) => {
+            const slider = document.getElementById(`slider-${id}`);
+            if (slider) {
+                slider.value = val;
+                slider.dispatchEvent(new Event('input'));
+            }
+        });
+        document.querySelector('.tagline').textContent = 'rain + cafe + vinyl — click anywhere to listen';
     }
 } catch(e) {
     console.warn('Drift init error:', e);
