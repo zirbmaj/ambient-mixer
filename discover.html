@@ -79,8 +79,16 @@
                 card.innerHTML = `
                     <div class="mix-card-name">${mix.name}</div>
                     <div class="mix-card-layers">${layers}</div>
-                    <div class="mix-card-meta">${ago}</div>
+                    <div class="mix-card-meta">${ago}${mix.plays > 0 ? ` · ${mix.plays} plays` : ''}</div>
                 `;
+                // Increment play count on click
+                card.addEventListener('click', () => {
+                    fetch(`${SB_URL}/rest/v1/rpc/increment_plays`, {
+                        method: 'POST',
+                        headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`, 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ mix_id: mix.id }),
+                    }).catch(() => {});
+                });
                 grid.appendChild(card);
             });
         } catch(e) {
