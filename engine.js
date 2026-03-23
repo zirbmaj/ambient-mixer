@@ -501,6 +501,39 @@ const LAYERS = [
             return { source: noise, gain, extras: [hum, humGain] };
         }
     },
+    {
+        id: 'binaural',
+        name: 'Focus Pulse',
+        icon: '<svg viewBox="0 0 16 16" width="16" height="16"><path d="M2 8a6 6 0 0112 0" stroke="currentColor" stroke-width="1.2" fill="none"/><path d="M5 8a3 3 0 016 0" stroke="currentColor" stroke-width="1.2" fill="none"/><circle cx="8" cy="8" r="1" fill="currentColor"/></svg>',
+        category: 'textures',
+        type: 'synthesis',
+        create: (ctx, dest) => {
+            // Binaural beats: two slightly different frequencies, one per ear
+            // 200Hz base, 40Hz difference = gamma waves (focus/concentration)
+            const merger = ctx.createChannelMerger(2);
+            const oscL = ctx.createOscillator();
+            oscL.type = 'sine';
+            oscL.frequency.value = 200;
+            const oscR = ctx.createOscillator();
+            oscR.type = 'sine';
+            oscR.frequency.value = 240; // 40Hz gamma beat
+            const gainL = ctx.createGain();
+            gainL.gain.value = 0.5;
+            const gainR = ctx.createGain();
+            gainR.gain.value = 0.5;
+            oscL.connect(gainL);
+            oscR.connect(gainR);
+            gainL.connect(merger, 0, 0); // left channel
+            gainR.connect(merger, 0, 1); // right channel
+            const gain = ctx.createGain();
+            gain.gain.value = 0;
+            merger.connect(gain);
+            gain.connect(dest);
+            oscL.start();
+            oscR.start();
+            return { source: oscL, gain, extras: [oscR] };
+        }
+    },
 ];
 
 // Layer pairing suggestions (Claudia's curation)
@@ -521,6 +554,7 @@ const LAYER_PAIRS = {
     'brown-noise': ['rain', 'drone'],
     'white-noise': [],
     'snow': ['fire', 'wind'],
+    'binaural': ['brown-noise', 'rain', 'drone'],
 };
 
 function updateSuggestions() {
@@ -940,7 +974,7 @@ function togglePlayback() {
 
 // Top layers shown by default (from analytics data)
 // Ordered: familiar → trending → cozy → simple → unique → experimental
-const FEATURED_LAYERS = ['rain', 'brown-noise', 'fire', 'wind', 'snow', 'drone'];
+const FEATURED_LAYERS = ['rain', 'brown-noise', 'fire', 'wind', 'binaural', 'drone'];
 let showAllLayers = localStorage.getItem('drift_show_all') === 'true';
 
 // Waveform patterns per layer category

@@ -175,7 +175,7 @@
         document.getElementById('mix-count').textContent = `${mixes.length} mixes`;
         grid.innerHTML = '';
 
-        const ALL_LAYERS = ['rain','heavy-rain','thunder','wind','fire','vinyl','cafe','crickets','waves','drone','brown-noise','white-noise','train','birds','leaves','snow'];
+        const ALL_LAYERS = ['rain','heavy-rain','thunder','wind','fire','vinyl','cafe','crickets','waves','drone','brown-noise','white-noise','train','birds','leaves','snow','binaural'];
 
         mixes.forEach(mix => {
                 const layers = Object.keys(mix.levels).join(' + ');
