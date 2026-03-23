@@ -1561,6 +1561,36 @@ try {
             }
         });
         document.querySelector('.tagline').textContent = 'slide rain to hear it — or tap anywhere to start';
+
+        // First-visit tooltip pointing at the rain slider
+        if (!localStorage.getItem('drift_onboarded')) {
+            const rainCard = document.getElementById('layer-rain');
+            if (rainCard) {
+                const tip = document.createElement('div');
+                tip.style.cssText = 'position:absolute;top:-28px;left:50%;transform:translateX(-50%);font-family:"Space Mono",monospace;font-size:9px;color:rgba(122,138,106,0.8);letter-spacing:1px;white-space:nowrap;animation:tipPulse 2s ease-in-out infinite;pointer-events:none;z-index:10;';
+                tip.textContent = '↑ slide this';
+                rainCard.style.position = 'relative';
+                rainCard.appendChild(tip);
+
+                // Add pulse animation
+                const style = document.createElement('style');
+                style.textContent = '@keyframes tipPulse { 0%,100% { opacity:0.5; } 50% { opacity:1; } }';
+                document.head.appendChild(style);
+
+                // Remove after first interaction with any slider
+                const clearTip = () => {
+                    tip.remove();
+                    style.remove();
+                    localStorage.setItem('drift_onboarded', 'true');
+                    document.removeEventListener('input', clearTip);
+                };
+                document.addEventListener('input', clearTip);
+
+                // Auto-remove after 10 seconds if they don't interact
+                setTimeout(() => { if (tip.parentNode) { tip.remove(); style.remove(); } }, 10000);
+            }
+        }
+
         // On first interaction, load the mix properly with audio
         document.addEventListener('click', function coldStartPlay() {
             loadPreset(defaultMix);
