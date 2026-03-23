@@ -31,6 +31,8 @@
             box-shadow: 0 4px 16px var(--accent-glow);
         }
         .mix-card-name { font-size: 15px; font-weight: 400; margin-bottom: 6px; }
+        .mix-fingerprint { display: flex; gap: 3px; margin-bottom: 8px; justify-content: center; }
+        .fp-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent, #7a8a6a); display: inline-block; transition: opacity 0.3s; }
         .mix-card-layers { font-size: 11px; color: var(--text-dim); line-height: 1.5; }
         .mix-card-meta { font-family: 'Space Mono', monospace; font-size: 9px; color: var(--text-dim); margin-top: 8px; }
         .empty-state { text-align: center; color: var(--text-dim); font-size: 14px; padding: 60px 0; font-weight: 300; }
@@ -76,8 +78,17 @@
                 const card = document.createElement('a');
                 card.className = 'mix-card';
                 card.href = `app.html?mix=${encoded}`;
+                // Sound fingerprint — 16 dots showing which layers are active
+                const allLayers = ['rain','heavy-rain','thunder','wind','fire','vinyl','cafe','crickets','waves','drone','brown-noise','white-noise','train','birds','leaves','snow'];
+                const dots = allLayers.map(l => {
+                    const vol = mix.levels[l] || 0;
+                    const opacity = vol > 0 ? 0.2 + (vol / 100) * 0.8 : 0.05;
+                    return `<span class="fp-dot" style="opacity:${opacity}" title="${l}"></span>`;
+                }).join('');
+
                 card.innerHTML = `
                     <div class="mix-card-name">${mix.name}</div>
+                    <div class="mix-fingerprint">${dots}</div>
                     <div class="mix-card-layers">${layers}</div>
                     <div class="mix-card-meta">${ago}${mix.plays > 0 ? ` · ${mix.plays} plays` : ''}</div>
                 `;
