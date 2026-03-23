@@ -848,29 +848,30 @@ function setLayerVolume(layerId, vol) {
 
     // Destroy nodes when volume goes to zero (free resources)
     if (vol === 0 && state.initialized) {
-        if (state.type === 'sample' && state.audio) {
+        // Kill sample audio if present
+        if (state.audio) {
             state.audio.pause();
             state.audio.src = '';
             state.audio = null;
-        } else {
-            if (state.gain) {
-                state.gain.gain.cancelScheduledValues(audioCtx.currentTime);
-                state.gain.gain.setValueAtTime(0, audioCtx.currentTime);
-            }
-            setTimeout(() => {
-                if (state.volume === 0) {
-                    try { if (state.source) state.source.stop(); } catch(e) {}
-                    try { if (state.source) state.source.disconnect(); } catch(e) {}
-                    if (state.extras) {
-                        state.extras.forEach(n => { try { n.stop(); } catch(e) {} try { n.disconnect(); } catch(e) {} });
-                    }
-                    if (state.gain) state.gain.disconnect();
-                    state.source = null;
-                    state.gain = null;
-                    state.extras = null;
-                }
-            }, 300);
         }
+        // Kill synthesis nodes if present
+        if (state.gain) {
+            state.gain.gain.cancelScheduledValues(audioCtx.currentTime);
+            state.gain.gain.setValueAtTime(0, audioCtx.currentTime);
+        }
+        setTimeout(() => {
+            if (state.volume === 0) {
+                try { if (state.source) state.source.stop(); } catch(e) {}
+                try { if (state.source) state.source.disconnect(); } catch(e) {}
+                if (state.extras) {
+                    state.extras.forEach(n => { try { n.stop(); } catch(e) {} try { n.disconnect(); } catch(e) {} });
+                }
+                if (state.gain) state.gain.disconnect();
+                state.source = null;
+                state.gain = null;
+                state.extras = null;
+            }
+        }, 300);
         state.initialized = false;
         state.type = null;
         return;
@@ -1079,6 +1080,7 @@ function buildLayerCard(layer, parent) {
     card._stopWaveAnim = () => { cancelAnimationFrame(animFrame); const ctx = canvas.getContext('2d'); ctx.clearRect(0, 0, 200, 32); };
     const slider = card.querySelector('.layer-slider');
     let wasActive = false;
+    let everActivated = false;
     slider.addEventListener('input', (e) => {
         const val = e.target.value / 100;
         if (!audioCtx) initAudio();
@@ -1086,6 +1088,8 @@ function buildLayerCard(layer, parent) {
         setLayerVolume(layer.id, val);
         const isActive = val > 0;
         card.classList.toggle('active', isActive);
+        if (isActive) everActivated = true;
+        card.classList.toggle('muted', !isActive && everActivated);
         card.querySelector('.layer-val').textContent = `${e.target.value}%`;
         if (isActive && !wasActive && window.nwlTrack) {
             window.nwlTrack('layer_activate', { layer: layer.id, name: layer.name, category: layer.category });
