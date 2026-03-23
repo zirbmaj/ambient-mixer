@@ -547,6 +547,44 @@ function updateSuggestions() {
 }
 
 // Now Playing indicator
+// Hidden messages for curious explorers
+const EASTER_EGGS = {
+    // Single layer at 100%
+    solo: {
+        'rain': 'sometimes one sound is enough',
+        'fire': 'stare into it long enough and it stares back',
+        'cafe': 'the best conversations are the ones you overhear',
+        'drone': 'the universe hums at 55 hertz. now you know',
+    },
+    // Specific combinations
+    combos: [
+        { layers: ['rain', 'fire'], msg: 'the impossible room' },
+        { layers: ['rain', 'cafe', 'vinyl'], msg: 'sunday morning, nowhere in particular' },
+        { layers: ['snow', 'fire'], msg: 'the cabin exists. you just found it' },
+        { layers: ['birds', 'crickets'], msg: 'dawn and dusk at the same time' },
+    ],
+};
+
+function checkEasterEgg(active) {
+    // Check solo at 100%
+    if (active.length === 1) {
+        const id = active[0].id;
+        const slider = document.getElementById(`slider-${id}`);
+        if (slider && parseInt(slider.value) === 100 && EASTER_EGGS.solo[id]) {
+            return EASTER_EGGS.solo[id];
+        }
+    }
+    // Check combos
+    const ids = active.map(l => l.id).sort();
+    for (const combo of EASTER_EGGS.combos) {
+        const sorted = [...combo.layers].sort();
+        if (ids.length === sorted.length && ids.every((id, i) => id === sorted[i])) {
+            return combo.msg;
+        }
+    }
+    return null;
+}
+
 function updateNowPlaying() {
     const bar = document.getElementById('now-playing-bar');
     const label = document.getElementById('np-layers');
@@ -558,7 +596,8 @@ function updateNowPlaying() {
         label.classList.remove('active');
         bar.classList.add('empty');
     } else {
-        label.textContent = active.map(l => l.name.toLowerCase()).join(' + ');
+        const egg = checkEasterEgg(active);
+        label.textContent = egg || active.map(l => l.name.toLowerCase()).join(' + ');
         label.classList.add('active');
         bar.classList.remove('empty');
     }
