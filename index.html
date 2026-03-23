@@ -113,6 +113,17 @@
             color: var(--accent);
             box-shadow: 0 0 15px var(--accent-glow);
         }
+        .hero.previewing {
+            background: radial-gradient(ellipse at 50% 60%, rgba(122, 138, 106, 0.06) 0%, transparent 70%);
+        }
+        .hero.previewing .hero-logo {
+            text-shadow: 0 0 80px var(--accent-glow), 0 0 200px rgba(122, 138, 106, 0.1);
+            animation: breathe 4s ease-in-out infinite;
+        }
+        @keyframes breathe {
+            0%, 100% { opacity: 0.9; }
+            50% { opacity: 1; }
+        }
         .quick-starts {
             margin-top: 32px;
             display: flex;
@@ -418,6 +429,7 @@
             previewPlaying = false;
             btn.textContent = '▶ Preview';
             btn.classList.remove('playing');
+            document.querySelector('.hero').classList.remove('previewing');
             return;
         }
         if (!previewCtx) previewCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -446,6 +458,7 @@
         previewPlaying = true;
         btn.textContent = '⏸ Preview';
         btn.classList.add('playing');
+        document.querySelector('.hero').classList.add('previewing');
     }
     </script>
     <script src="https://nowherelabs.dev/nav.js" defer></script>
