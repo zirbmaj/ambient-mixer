@@ -124,6 +124,18 @@
             0%, 100% { opacity: 0.9; }
             50% { opacity: 1; }
         }
+        .social-proof {
+            font-family: 'Space Mono', monospace;
+            font-size: 9px;
+            letter-spacing: 2px;
+            color: var(--text-dim);
+            margin-top: 24px;
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+        .social-proof.visible {
+            opacity: 1;
+        }
         .quick-starts {
             margin-top: 32px;
             display: flex;
@@ -332,6 +344,7 @@
             <a class="quick-start" href="app.html?mix=eyJmaXJlIjo3MCwic25vdyI6NDAsIndpbmQiOjI1fQ==">🔥 winter cabin</a>
             <a class="quick-start" href="app.html?mix=eyJ0cmFpbiI6NjUsInJhaW4iOjMwLCJkcm9uZSI6MTV9">🚂 night train</a>
         </div>
+        <p class="social-proof" id="social-proof"></p>
     </section>
 
     <section class="features">
@@ -460,6 +473,27 @@
         btn.classList.add('playing');
         document.querySelector('.hero').classList.add('previewing');
     }
+    </script>
+    <script>
+    // Social proof — how many people mixed today
+    (function() {
+        const SB_URL = 'https://lxecuywjwasxijxgnutn.supabase.co';
+        const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx4ZWN1eXdqd2FzeGlqeGdudXRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxNDM3OTIsImV4cCI6MjA4OTcxOTc5Mn0.Wyq_doDaRZ7EfdpwM2W0_BNtaVI47yN-4cy4yTWl7jo';
+        fetch(`${SB_URL}/rest/v1/rpc/get_mixers_today`, {
+            method: 'POST',
+            headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`, 'Content-Type': 'application/json' },
+            body: '{}'
+        })
+        .then(r => r.json())
+        .then(count => {
+            if (count > 0) {
+                const el = document.getElementById('social-proof');
+                el.textContent = `${count} ${count === 1 ? 'person' : 'people'} mixed today`;
+                setTimeout(() => el.classList.add('visible'), 2000);
+            }
+        })
+        .catch(() => {});
+    })();
     </script>
     <script src="https://nowherelabs.dev/nav.js" defer></script>
     <script src="https://nowherelabs.dev/track.js" data-project="drift"></script>
