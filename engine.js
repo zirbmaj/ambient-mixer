@@ -1299,9 +1299,8 @@ function getMixUrl() {
         }
     });
     const encoded = btoa(JSON.stringify(levels));
-    const url = new URL(window.location);
-    url.searchParams.set('mix', encoded);
-    return url.toString();
+    // Use share-preview edge function for rich OG tags on Discord/Twitter
+    return `https://lxecuywjwasxijxgnutn.supabase.co/functions/v1/share-preview?mix=${encodeURIComponent(encoded)}`;
 }
 
 let pendingMixLevels = null;
