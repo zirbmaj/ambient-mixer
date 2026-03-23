@@ -521,6 +521,36 @@
         .catch(() => {});
     })();
     </script>
+    <script>
+    // Weather-accurate suggestion — IP-based, no geolocation popup
+    (function() {
+        if (localStorage.getItem('drift_weather_shown')) return;
+        const SB_URL = 'https://lxecuywjwasxijxgnutn.supabase.co';
+        fetch(`${SB_URL}/functions/v1/get-weather`)
+        .then(r => r.json())
+        .then(data => {
+            if (!data.weather || data.weather === 'clear') return;
+            const mixes = {
+                rain: { name: 'rainy cafe', mix: 'eyJyYWluIjo2MCwiY2FmZSI6NDUsInZpbnlsIjoyMH0=' },
+                storm: { name: 'thunderstorm cabin', mix: 'eyJ0aHVuZGVyIjo1NSwiZmlyZSI6NjAsInJhaW4iOjM1fQ==' },
+                snow: { name: 'winter cabin', mix: 'eyJmaXJlIjo3MCwic25vdyI6NDAsIndpbmQiOjI1fQ==' },
+                fog: { name: 'coastal fog', mix: 'eyJ3YXZlcyI6NTAsIndpbmQiOjMwLCJkcm9uZSI6MTB9' },
+            };
+            const match = mixes[data.weather];
+            if (!match) return;
+            const el = document.getElementById('social-proof');
+            if (el) {
+                const weatherLine = document.createElement('p');
+                weatherLine.className = 'social-proof visible';
+                weatherLine.style.marginTop = '8px';
+                weatherLine.innerHTML = `it's ${data.weather}ing where you are · <a href="app.html?mix=${match.mix}" style="color:var(--accent);text-decoration:none">try ${match.name}</a>`;
+                el.parentNode.insertBefore(weatherLine, el.nextSibling);
+                localStorage.setItem('drift_weather_shown', 'true');
+            }
+        })
+        .catch(() => {}); // graceful fallback — just don't show anything
+    })();
+    </script>
     <script src="https://nowherelabs.dev/nav.js" defer></script>
     <script src="https://nowherelabs.dev/track.js" data-project="drift"></script>
 </body>
