@@ -555,6 +555,50 @@ body {
     letter-spacing: 1px;
 }
 
+/* Shared mix preview on start overlay */
+.shared-mix-preview {
+    margin: 20px auto 24px;
+    max-width: 260px;
+}
+
+.smp-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.smp-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--text-secondary);
+    letter-spacing: 1px;
+    min-width: 70px;
+    text-align: right;
+}
+
+.smp-bar {
+    flex: 1;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.smp-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 2px;
+    opacity: 0.7;
+    animation: barGrow 0.8s ease-out forwards;
+    transform-origin: left;
+}
+
+@keyframes barGrow {
+    from { transform: scaleX(0); }
+    to { transform: scaleX(1); }
+}
+
 @keyframes pulse {
     0%, 100% { opacity: 0.4; }
     50% { opacity: 1; }

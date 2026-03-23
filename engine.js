@@ -1312,16 +1312,50 @@ function loadMixFromUrl() {
     try {
         pendingMixLevels = JSON.parse(atob(mix));
 
-        // Show mix preview on the start overlay
+        // Build rich shared mix preview on the start overlay
+        const startContent = document.querySelector('.start-content');
         const startText = document.querySelector('.start-text');
-        if (startText && pendingMixLevels) {
-            const layerNames = Object.keys(pendingMixLevels)
-                .map(id => {
+        if (startContent && pendingMixLevels) {
+            const layers = Object.entries(pendingMixLevels)
+                .map(([id, val]) => {
                     const l = LAYERS.find(l => l.id === id);
-                    return l ? l.name.toLowerCase() : id;
+                    return l ? { name: l.name, icon: l.icon || '', level: val } : { name: id, icon: '', level: val };
                 })
-                .join(' + ');
-            startText.textContent = 'tap to play: ' + layerNames;
+                .sort((a, b) => b.level - a.level);
+
+            // Visual mix fingerprint — horizontal bars for each layer
+            const preview = document.createElement('div');
+            preview.className = 'shared-mix-preview';
+            layers.forEach(l => {
+                const row = document.createElement('div');
+                row.className = 'smp-row';
+                const label = document.createElement('span');
+                label.className = 'smp-label';
+                label.textContent = l.name.toLowerCase();
+                const barOuter = document.createElement('div');
+                barOuter.className = 'smp-bar';
+                const barInner = document.createElement('div');
+                barInner.className = 'smp-fill';
+                barInner.style.width = l.level + '%';
+                barOuter.appendChild(barInner);
+                row.appendChild(label);
+                row.appendChild(barOuter);
+                preview.appendChild(row);
+            });
+
+            // Insert preview between logo and start-text
+            startContent.insertBefore(preview, startText);
+
+            // Update text to a clear CTA
+            startText.textContent = 'tap anywhere to listen';
+
+            // Track shared mix view
+            if (window.nwlTrack) {
+                window.nwlTrack('shared_mix_view', {
+                    layers: layers.map(l => l.name).join(', '),
+                    layer_count: layers.length
+                });
+            }
         }
         return true;
     } catch {
@@ -1542,7 +1576,7 @@ try {
     renderDefaultMixes();
     const hasMix = loadMixFromUrl();
     if (hasMix) {
-        document.querySelector('.tagline').textContent = 'someone shared a mix with you — click anywhere to listen';
+        document.querySelector('.tagline').textContent = 'someone shared a room with you';
     } else {
         // Cold start: pre-load rainy cafe VISUALLY only (no audio until user gesture)
         const defaultMix = { rain: 60, cafe: 45, vinyl: 20 };
