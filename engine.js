@@ -562,6 +562,12 @@ const EASTER_EGGS = {
         { layers: ['rain', 'cafe', 'vinyl'], msg: 'sunday morning, nowhere in particular' },
         { layers: ['snow', 'fire'], msg: 'the cabin exists. you just found it' },
         { layers: ['birds', 'crickets'], msg: 'dawn and dusk at the same time' },
+        { layers: ['train', 'rain'], msg: 'going somewhere. not sure where. that\'s okay' },
+        { layers: ['waves', 'wind'], msg: 'the edge of the world sounds like this' },
+        { layers: ['brown-noise', 'white-noise'], msg: 'the space between frequencies' },
+        { layers: ['vinyl', 'drone'], msg: 'a record player in an abandoned church' },
+        { layers: ['thunder', 'fire'], msg: 'the storm is outside. you are not' },
+        { layers: ['leaves', 'birds', 'wind'], msg: 'a forest that only exists in headphones' },
     ],
 };
 
