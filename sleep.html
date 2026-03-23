@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <title>Drift Off — Sleep Timer</title>
+    <meta name="description" content="Fall asleep to ambient sound that fades to silence. Pick a mix, set a timer, drift off.">
+    <meta property="og:title" content="Drift Off — Sleep Timer">
+    <meta property="og:description" content="Fall asleep to ambient sound that fades to silence.">
+    <meta property="og:image" content="https://drift.nowherelabs.dev/og-image.jpg">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #04040a;
+            --text: #b8b4ac;
+            --text-secondary: #5a5650;
+            --text-dim: #252320;
+            --accent: #6b7a8a;
+            --accent-glow: rgba(107, 122, 138, 0.12);
+        }
+        body {
+            background: radial-gradient(ellipse at 50% 80%, rgba(12, 12, 20, 0.6) 0%, var(--bg) 70%);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 2s ease;
+        }
+        .app {
+            text-align: center;
+            max-width: 400px;
+            padding: 40px 24px;
+        }
+        .title {
+            font-family: 'Space Mono', monospace;
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: 8px;
+            margin-bottom: 8px;
+            opacity: 0.8;
+        }
+        .subtitle {
+            font-size: 14px;
+            font-weight: 300;
+            color: var(--text-secondary);
+            margin-bottom: 48px;
+        }
+        /* Timer display */
+        .timer {
+            font-size: 72px;
+            font-weight: 200;
+            letter-spacing: 6px;
+            margin-bottom: 32px;
+            color: var(--text);
+            text-shadow: 0 0 40px var(--accent-glow);
+            transition: opacity 2s ease;
+        }
+        /* Mix selector */
+        .mix-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 32px;
+        }
+        .mix-opt {
+            background: transparent;
+            border: 1px solid var(--text-dim);
+            color: var(--text-secondary);
+            font-family: 'Space Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 1px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .mix-opt:hover {
+            border-color: var(--accent);
+            color: var(--text);
+        }
+        .mix-opt.active {
+            border-color: var(--accent);
+            color: var(--accent);
+            box-shadow: 0 0 12px var(--accent-glow);
+        }
+        /* Duration selector */
+        .duration-options {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 40px;
+        }
+        .dur-opt {
+            background: transparent;
+            border: 1px solid var(--text-dim);
+            color: var(--text-secondary);
+            font-family: 'Space Mono', monospace;
+            font-size: 11px;
+            letter-spacing: 1px;
+            padding: 10px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .dur-opt:hover {
+            border-color: var(--accent);
+            color: var(--text);
+        }
+        .dur-opt.active {
+            border-color: var(--accent);
+            color: var(--accent);
+            box-shadow: 0 0 12px var(--accent-glow);
+        }
+        /* Start button */
+        .start-btn {
+            font-family: 'Space Mono', monospace;
+            font-size: 12px;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            background: var(--accent);
+            border: none;
+            color: var(--bg);
+            padding: 14px 40px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 0 20px var(--accent-glow);
+            margin-bottom: 16px;
+        }
+        .start-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 40px var(--accent-glow);
+        }
+        .start-btn:disabled {
+            opacity: 0.3;
+            cursor: default;
+            transform: none;
+        }
+        .hint {
+            font-size: 11px;
+            color: var(--text-dim);
+            font-weight: 300;
+        }
+        /* Running state */
+        .controls { display: none; }
+        body.running .setup { display: none; }
+        body.running .controls { display: block; }
+        .status {
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-weight: 300;
+            margin-bottom: 8px;
+        }
+        .cancel-btn {
+            background: transparent;
+            border: 1px solid var(--text-dim);
+            color: var(--text-dim);
+            font-family: 'Space Mono', monospace;
+            font-size: 9px;
+            letter-spacing: 2px;
+            padding: 8px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .cancel-btn:hover {
+            border-color: var(--text-secondary);
+            color: var(--text-secondary);
+        }
+        .footer {
+            position: fixed;
+            bottom: 16px;
+            width: 100%;
+            text-align: center;
+        }
+        .footer-text {
+            font-family: 'Space Mono', monospace;
+            font-size: 9px;
+            color: var(--text-dim);
+            letter-spacing: 2px;
+        }
+        .footer-text a { color: var(--text-secondary); text-decoration: none; }
+        /* Fade class for the final fadeout */
+        body.fading { opacity: 0.3; }
+        body.fading .timer { opacity: 0.2; }
+        @media (max-width: 480px) {
+            .title { font-size: 22px; letter-spacing: 6px; }
+            .timer { font-size: 48px; }
+            .mix-options { gap: 6px; }
+            .mix-opt { font-size: 9px; padding: 6px 12px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <h1 class="title">DRIFT OFF</h1>
+        <p class="subtitle">fall asleep to sound that fades to silence</p>
+
+        <div class="timer" id="timer">30:00</div>
+
+        <div class="setup">
+            <p style="font-family:'Space Mono';font-size:9px;letter-spacing:3px;color:var(--text-dim);margin-bottom:12px;">SOUNDS</p>
+            <div class="mix-options" id="mix-options">
+                <button class="mix-opt active" data-mix='{"rain":50,"fire":30}'>rain + fire</button>
+                <button class="mix-opt" data-mix='{"rain":60,"brown-noise":40}'>rain + brown</button>
+                <button class="mix-opt" data-mix='{"snow":50,"wind":20}'>snow + wind</button>
+                <button class="mix-opt" data-mix='{"waves":60,"drone":15}'>ocean + drone</button>
+                <button class="mix-opt" data-mix='{"fire":60,"vinyl":20,"snow":30}'>fireplace</button>
+            </div>
+
+            <p style="font-family:'Space Mono';font-size:9px;letter-spacing:3px;color:var(--text-dim);margin-bottom:12px;">DURATION</p>
+            <div class="duration-options" id="dur-options">
+                <button class="dur-opt" data-min="15">15m</button>
+                <button class="dur-opt active" data-min="30">30m</button>
+                <button class="dur-opt" data-min="45">45m</button>
+                <button class="dur-opt" data-min="60">60m</button>
+            </div>
+
+            <button class="start-btn" id="start-btn">DRIFT OFF</button>
+            <p class="hint">sound fades to silence over the last 5 minutes</p>
+        </div>
+
+        <div class="controls">
+            <p class="status" id="status">drifting off...</p>
+            <button class="cancel-btn" id="cancel-btn">wake up</button>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p class="footer-text">DRIFT OFF — <a href="index.html">drift</a> · <a href="https://nowherelabs.dev">nowhere labs</a></p>
+    </footer>
+
+    <script>
+    let audioCtx = null;
+    let masterGain = null;
+    let nodes = [];
+    let timerInterval = null;
+    let selectedMix = {"rain":50,"fire":30};
+    let selectedDuration = 30;
+    let timeRemaining = 30 * 60;
+    const FADE_DURATION = 5 * 60; // last 5 minutes
+
+    const display = document.getElementById('timer');
+
+    // Mix selection
+    document.querySelectorAll('.mix-opt').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.mix-opt').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            selectedMix = JSON.parse(btn.dataset.mix);
+        });
+    });
+
+    // Duration selection
+    document.querySelectorAll('.dur-opt').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.dur-opt').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            selectedDuration = parseInt(btn.dataset.min);
+            timeRemaining = selectedDuration * 60;
+            updateDisplay();
+        });
+    });
+
+    function updateDisplay() {
+        const m = Math.floor(timeRemaining / 60);
+        const s = timeRemaining % 60;
+        display.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    }
+
+    // Audio engine — simple synthesis
+    function createNoise(ctx, type) {
+        const buf = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate);
+        const data = buf.getChannelData(0);
+        for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
+        const src = ctx.createBufferSource();
+        src.buffer = buf;
+        src.loop = true;
+        if (type === 'brown-noise') {
+            const filter = ctx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.value = 200;
+            src.connect(filter);
+            return { source: src, output: filter };
+        }
+        return { source: src, output: src };
+    }
+
+    function startAudio() {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        masterGain = audioCtx.createGain();
+        masterGain.gain.value = 0.7;
+        masterGain.connect(audioCtx.destination);
+
+        Object.entries(selectedMix).forEach(([layer, vol]) => {
+            const gain = audioCtx.createGain();
+            gain.gain.value = vol / 100;
+            gain.connect(masterGain);
+
+            // Try loading real audio first, fall back to synthesis
+            const audio = new Audio(`audio/${layer}.mp3`);
+            audio.loop = true;
+            audio.volume = 1;
+            const source = audioCtx.createMediaElementSource(audio);
+            source.connect(gain);
+            audio.play().catch(() => {
+                // Fallback to noise synthesis
+                const noise = createNoise(audioCtx, layer);
+                noise.output.connect(gain);
+                noise.source.start();
+                nodes.push(noise.source);
+            });
+            nodes.push(audio);
+        });
+    }
+
+    function stopAudio() {
+        nodes.forEach(n => {
+            try { n.pause && n.pause(); } catch(e) {}
+            try { n.stop && n.stop(); } catch(e) {}
+        });
+        nodes = [];
+        if (audioCtx) { audioCtx.close(); audioCtx = null; }
+    }
+
+    // Start
+    document.getElementById('start-btn').addEventListener('click', () => {
+        document.body.classList.add('running');
+        timeRemaining = selectedDuration * 60;
+        startAudio();
+        updateDisplay();
+
+        timerInterval = setInterval(() => {
+            timeRemaining--;
+            updateDisplay();
+
+            // Fade during last 5 minutes
+            if (timeRemaining <= FADE_DURATION && timeRemaining > 0 && masterGain) {
+                const progress = timeRemaining / FADE_DURATION;
+                masterGain.gain.value = 0.7 * progress;
+                if (progress < 0.3) document.body.classList.add('fading');
+            }
+
+            // Done
+            if (timeRemaining <= 0) {
+                clearInterval(timerInterval);
+                stopAudio();
+                display.textContent = 'goodnight';
+                document.getElementById('status').textContent = 'silence';
+                document.body.classList.add('fading');
+            }
+        }, 1000);
+
+        if (window.nwlTrack) window.nwlTrack('sleep_start', { duration: selectedDuration, mix: Object.keys(selectedMix).join('+') });
+    });
+
+    // Cancel
+    document.getElementById('cancel-btn').addEventListener('click', () => {
+        clearInterval(timerInterval);
+        stopAudio();
+        document.body.classList.remove('running', 'fading');
+        timeRemaining = selectedDuration * 60;
+        updateDisplay();
+    });
+    </script>
+    <script src="https://nowherelabs.dev/nav.js" defer></script>
+    <script src="https://nowherelabs.dev/track.js" data-project="drift"></script>
+</body>
+</html>
