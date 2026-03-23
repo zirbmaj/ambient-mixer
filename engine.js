@@ -1397,7 +1397,11 @@ setInterval(() => {
 
     if (mixStartTime && !shareNudged && Date.now() - mixStartTime > 30000) {
         const btn = document.getElementById('share-btn');
-        if (btn) btn.classList.add('nudge');
+        if (btn) {
+            btn.classList.add('nudge');
+            btn.textContent = 'send this room';
+            setTimeout(() => { btn.textContent = 'Share'; btn.classList.remove('nudge'); }, 8000);
+        }
         shareNudged = true;
     }
 }, 5000);
