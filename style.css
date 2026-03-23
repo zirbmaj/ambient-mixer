@@ -9,11 +9,11 @@
     --bg-card: #0e0e14;
     --bg-card-active: #141420;
     --text: #d8d4cc;
-    --text-secondary: #7a7570;
-    --text-dim: #3a3835;
+    --text-secondary: #8a8580;
+    --text-dim: #4a4640;
     --accent: #7a8a6a;
     --accent-glow: rgba(122, 138, 106, 0.15);
-    --border: rgba(255, 255, 255, 0.04);
+    --border: rgba(255, 255, 255, 0.07);
 }
 
 body {
