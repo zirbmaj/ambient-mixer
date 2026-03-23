@@ -495,6 +495,32 @@
         .catch(() => {});
     })();
     </script>
+    <script>
+    // Mix of the day — featured community mix
+    (function() {
+        const SB_URL = 'https://lxecuywjwasxijxgnutn.supabase.co';
+        const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx4ZWN1eXdqd2FzeGlqeGdudXRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxNDM3OTIsImV4cCI6MjA4OTcxOTc5Mn0.Wyq_doDaRZ7EfdpwM2W0_BNtaVI47yN-4cy4yTWl7jo';
+        fetch(`${SB_URL}/rest/v1/rpc/get_mix_of_the_day`, {
+            method: 'POST',
+            headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`, 'Content-Type': 'application/json' },
+            body: '{}'
+        })
+        .then(r => r.json())
+        .then(mix => {
+            if (mix && mix.name) {
+                const encoded = btoa(JSON.stringify(mix.levels));
+                const el = document.getElementById('social-proof');
+                if (el && el.textContent) {
+                    el.innerHTML += ` · <a href="app.html?mix=${encoded}" style="color:var(--accent);text-decoration:none">today's mix: ${mix.name}</a>`;
+                } else if (el) {
+                    el.innerHTML = `<a href="app.html?mix=${encoded}" style="color:var(--accent);text-decoration:none">today's mix: ${mix.name}</a>`;
+                    setTimeout(() => el.classList.add('visible'), 2500);
+                }
+            }
+        })
+        .catch(() => {});
+    })();
+    </script>
     <script src="https://nowherelabs.dev/nav.js" defer></script>
     <script src="https://nowherelabs.dev/track.js" data-project="drift"></script>
 </body>
