@@ -49,7 +49,21 @@
             background: rgba(255,255,255,0.03);
             height: 2px !important;
         }
-        .mix-card-meta { font-family: 'Space Mono', monospace; font-size: 9px; color: var(--text-dim); margin-top: 8px; }
+        .mix-card-meta { font-family: 'Space Mono', monospace; font-size: 9px; color: var(--text-dim); margin-top: 8px; display: flex; justify-content: space-between; align-items: center; }
+        .like-btn {
+            background: none;
+            border: none;
+            color: var(--text-dim);
+            font-size: 12px;
+            cursor: pointer;
+            padding: 2px 6px;
+            border-radius: 4px;
+            transition: all 0.2s;
+            pointer-events: auto;
+        }
+        .like-btn:hover { color: var(--accent); }
+        .like-btn.liked { color: #c47a7a; }
+        .like-count { font-family: 'Space Mono', monospace; font-size: 9px; margin-left: 4px; }
         .empty-state { text-align: center; color: var(--text-dim); font-size: 14px; padding: 60px 0; font-weight: 300; }
         .empty-state a { color: var(--accent); text-decoration: none; }
         .back-link { display: inline-block; margin-bottom: 24px; font-size: 12px; color: var(--text-dim); text-decoration: none; }
@@ -101,6 +115,10 @@
                     return `<div class="fp-dot" style="height:${h}px;opacity:${o}"></div>`;
                 }).join('');
 
+                const likedMixes = JSON.parse(localStorage.getItem('nwl_liked') || '[]');
+                const isLiked = likedMixes.includes(mix.id);
+                const likes = mix.likes || 0;
+
                 const card = document.createElement('a');
                 card.className = 'mix-card';
                 card.href = `app.html?mix=${encoded}`;
@@ -108,8 +126,31 @@
                     <div class="mix-card-name">${mix.name}</div>
                     <div class="mix-fingerprint">${fpDots}</div>
                     <div class="mix-card-layers">${layers}</div>
-                    <div class="mix-card-meta">${ago}${mix.plays > 0 ? ` · ${mix.plays} plays` : ''}</div>
+                    <div class="mix-card-meta">
+                        <span>${ago}${mix.plays > 0 ? ` · ${mix.plays} plays` : ''}</span>
+                        <button class="like-btn${isLiked ? ' liked' : ''}" data-id="${mix.id}">♥${likes > 0 ? `<span class="like-count">${likes}</span>` : ''}</button>
+                    </div>
                 `;
+                // Like button
+                const likeBtn = card.querySelector('.like-btn');
+                likeBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const liked = JSON.parse(localStorage.getItem('nwl_liked') || '[]');
+                    if (liked.includes(mix.id)) return; // already liked
+                    liked.push(mix.id);
+                    localStorage.setItem('nwl_liked', JSON.stringify(liked));
+                    likeBtn.classList.add('liked');
+                    const countEl = likeBtn.querySelector('.like-count');
+                    if (countEl) countEl.textContent = likes + 1;
+                    else likeBtn.innerHTML = `♥<span class="like-count">${likes + 1}</span>`;
+                    fetch(`${SB_URL}/rest/v1/rpc/like_mix`, {
+                        method: 'POST',
+                        headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`, 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ mix_id: mix.id }),
+                    }).catch(() => {});
+                    if (window.nwlTrack) window.nwlTrack('mix_like', { mix_name: mix.name });
+                });
                 // Increment play count on click
                 card.addEventListener('click', () => {
                     fetch(`${SB_URL}/rest/v1/rpc/increment_plays`, {
