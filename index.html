@@ -373,7 +373,7 @@
     function togglePreview() {
         const btn = document.getElementById('try-btn');
         if (previewPlaying) {
-            previewNodes.forEach(n => { try { n.stop(); } catch(e) {} });
+            previewNodes.forEach(n => { try { n.pause(); n.currentTime = 0; } catch(e) { try { n.stop(); } catch(e2) {} } });
             previewNodes = [];
             previewPlaying = false;
             btn.textContent = '▶ Preview';
@@ -383,45 +383,24 @@
         if (!previewCtx) previewCtx = new (window.AudioContext || window.webkitAudioContext)();
         if (previewCtx.state === 'suspended') previewCtx.resume();
 
-        const master = previewCtx.createGain();
-        master.gain.value = 0.4;
-        master.connect(previewCtx.destination);
-
-        // Rain
-        const rainBuf = previewCtx.createBuffer(1, previewCtx.sampleRate * 2, previewCtx.sampleRate);
-        const rd = rainBuf.getChannelData(0);
-        for (let i = 0; i < rd.length; i++) rd[i] = Math.random() * 2 - 1;
-        const rain = previewCtx.createBufferSource();
-        rain.buffer = rainBuf;
+        // Use real audio samples for a true preview
+        const rain = new Audio('audio/rain.mp3');
         rain.loop = true;
-        const rainF = previewCtx.createBiquadFilter();
-        rainF.type = 'bandpass';
-        rainF.frequency.value = 800;
-        rainF.Q.value = 0.5;
-        const rainG = previewCtx.createGain();
-        rainG.gain.value = 0.08;
-        rain.connect(rainF);
-        rainF.connect(rainG);
-        rainG.connect(master);
-        rain.start();
-
-        // Cafe murmur
-        const cafeBuf = previewCtx.createBuffer(1, previewCtx.sampleRate * 2, previewCtx.sampleRate);
-        const cd = cafeBuf.getChannelData(0);
-        for (let i = 0; i < cd.length; i++) cd[i] = Math.random() * 2 - 1;
-        const cafe = previewCtx.createBufferSource();
-        cafe.buffer = cafeBuf;
+        rain.volume = 0.5;
+        const cafe = new Audio('audio/cafe.mp3');
         cafe.loop = true;
-        const cafeF = previewCtx.createBiquadFilter();
-        cafeF.type = 'bandpass';
-        cafeF.frequency.value = 400;
-        cafeF.Q.value = 0.8;
-        const cafeG = previewCtx.createGain();
-        cafeG.gain.value = 0.05;
-        cafe.connect(cafeF);
-        cafeF.connect(cafeG);
-        cafeG.connect(master);
-        cafe.start();
+        cafe.volume = 0.3;
+
+        // Fade in
+        rain.volume = 0;
+        cafe.volume = 0;
+        rain.play().catch(() => {});
+        cafe.play().catch(() => {});
+        let fadeIn = setInterval(() => {
+            if (rain.volume < 0.5) rain.volume = Math.min(rain.volume + 0.05, 0.5);
+            if (cafe.volume < 0.3) cafe.volume = Math.min(cafe.volume + 0.03, 0.3);
+            if (rain.volume >= 0.5 && cafe.volume >= 0.3) clearInterval(fadeIn);
+        }, 100);
 
         previewNodes = [rain, cafe];
         previewPlaying = true;
