@@ -1093,6 +1093,7 @@ function buildLayerCard(layer, parent) {
         wasActive = isActive;
         updateSuggestions();
         updateNowPlaying();
+        autoSaveMix();
         // Animate waveform
         if (isActive) card._startWaveAnim();
         else card._stopWaveAnim();
@@ -1162,6 +1163,32 @@ function buildMixer() {
         }
     });
     grid.appendChild(toggle);
+}
+
+// Auto-save current mix to localStorage (debounced)
+let _autoSaveTimer = null;
+function autoSaveMix() {
+    clearTimeout(_autoSaveTimer);
+    _autoSaveTimer = setTimeout(() => {
+        const levels = {};
+        LAYERS.forEach(layer => {
+            const slider = document.getElementById(`slider-${layer.id}`);
+            if (slider && parseInt(slider.value) > 0) {
+                levels[layer.id] = parseInt(slider.value);
+            }
+        });
+        if (Object.keys(levels).length > 0) {
+            localStorage.setItem('drift_last_mix', JSON.stringify(levels));
+        } else {
+            localStorage.removeItem('drift_last_mix');
+        }
+    }, 1000);
+}
+
+function getLastMix() {
+    try {
+        return JSON.parse(localStorage.getItem('drift_last_mix'));
+    } catch { return null; }
 }
 
 // Presets (localStorage)
@@ -1578,13 +1605,15 @@ try {
     if (hasMix) {
         document.querySelector('.tagline').textContent = 'someone shared a room with you';
     } else {
-        // Cold start: pre-load rainy cafe VISUALLY only (no audio until user gesture)
-        const defaultMix = { rain: 60, cafe: 45, vinyl: 20 };
-        Object.entries(defaultMix).forEach(([id, val]) => {
+        // Returning user: restore their last mix if one exists
+        const lastMix = getLastMix();
+        const coldMix = lastMix || { rain: 60, cafe: 45, vinyl: 20 };
+
+        // Pre-load VISUALLY only (no audio until user gesture)
+        Object.entries(coldMix).forEach(([id, val]) => {
             const slider = document.getElementById(`slider-${id}`);
             if (slider) {
                 slider.value = val;
-                // Update visual state without triggering audio
                 const card = document.getElementById(`layer-${id}`);
                 if (card) {
                     card.classList.add('active');
@@ -1593,40 +1622,45 @@ try {
                 }
             }
         });
-        document.querySelector('.tagline').textContent = 'slide rain to hear it — or tap anywhere to start';
 
-        // First-visit tooltip pointing at the rain slider
-        if (!localStorage.getItem('drift_onboarded')) {
-            const rainCard = document.getElementById('layer-rain');
-            if (rainCard) {
-                const tip = document.createElement('div');
-                tip.style.cssText = 'position:absolute;top:-28px;left:50%;transform:translateX(-50%);font-family:"Space Mono",monospace;font-size:9px;color:rgba(122,138,106,0.8);letter-spacing:1px;white-space:nowrap;animation:tipPulse 2s ease-in-out infinite;pointer-events:none;z-index:10;';
-                tip.textContent = '↑ slide this';
-                rainCard.style.position = 'relative';
-                rainCard.appendChild(tip);
+        if (lastMix) {
+            const layerNames = Object.keys(lastMix)
+                .map(id => { const l = LAYERS.find(l => l.id === id); return l ? l.name.toLowerCase() : id; })
+                .join(' + ');
+            document.querySelector('.tagline').textContent = 'welcome back — tap to resume ' + layerNames;
+            if (window.nwlTrack) window.nwlTrack('returning_user', { layers: layerNames });
+        } else {
+            document.querySelector('.tagline').textContent = 'slide rain to hear it — or tap anywhere to start';
 
-                // Add pulse animation
-                const style = document.createElement('style');
-                style.textContent = '@keyframes tipPulse { 0%,100% { opacity:0.5; } 50% { opacity:1; } }';
-                document.head.appendChild(style);
+            // First-visit tooltip pointing at the rain slider
+            if (!localStorage.getItem('drift_onboarded')) {
+                const rainCard = document.getElementById('layer-rain');
+                if (rainCard) {
+                    const tip = document.createElement('div');
+                    tip.style.cssText = 'position:absolute;top:-28px;left:50%;transform:translateX(-50%);font-family:"Space Mono",monospace;font-size:9px;color:rgba(122,138,106,0.8);letter-spacing:1px;white-space:nowrap;animation:tipPulse 2s ease-in-out infinite;pointer-events:none;z-index:10;';
+                    tip.textContent = '↑ slide this';
+                    rainCard.style.position = 'relative';
+                    rainCard.appendChild(tip);
 
-                // Remove after first interaction with any slider
-                const clearTip = () => {
-                    tip.remove();
-                    style.remove();
-                    localStorage.setItem('drift_onboarded', 'true');
-                    document.removeEventListener('input', clearTip);
-                };
-                document.addEventListener('input', clearTip);
+                    const style = document.createElement('style');
+                    style.textContent = '@keyframes tipPulse { 0%,100% { opacity:0.5; } 50% { opacity:1; } }';
+                    document.head.appendChild(style);
 
-                // Auto-remove after 10 seconds if they don't interact
-                setTimeout(() => { if (tip.parentNode) { tip.remove(); style.remove(); } }, 10000);
+                    const clearTip = () => {
+                        tip.remove();
+                        style.remove();
+                        localStorage.setItem('drift_onboarded', 'true');
+                        document.removeEventListener('input', clearTip);
+                    };
+                    document.addEventListener('input', clearTip);
+                    setTimeout(() => { if (tip.parentNode) { tip.remove(); style.remove(); } }, 10000);
+                }
             }
         }
 
         // On first interaction, load the mix properly with audio
         document.addEventListener('click', function coldStartPlay() {
-            loadPreset(defaultMix);
+            loadPreset(coldMix);
             document.removeEventListener('click', coldStartPlay);
         }, { once: true });
     }
