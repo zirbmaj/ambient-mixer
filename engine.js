@@ -880,40 +880,29 @@ function setLayerVolume(layerId, vol) {
     state.volume = vol;
     state.active = vol > 0;
 
-    // Destroy nodes when volume goes to zero (free resources)
+    // When volume goes to zero, pause/silence but keep nodes alive
+    // This prevents the train/fireplace revert-to-synthesis bug where
+    // destroying and re-creating Audio elements caused sample load failures
     if (vol === 0 && state.initialized) {
-        // Kill sample audio if present
-        if (state.audio) {
+        if (state.type === 'sample' && state.audio) {
+            // Pause sample but keep it loaded — instant resume on re-engage
             state.audio.pause();
-            state.audio.src = '';
-            state.audio = null;
+            state.audio.volume = 0;
         }
-        // Kill synthesis nodes if present
         if (state.gain) {
             state.gain.gain.cancelScheduledValues(audioCtx.currentTime);
             state.gain.gain.setValueAtTime(0, audioCtx.currentTime);
         }
-        setTimeout(() => {
-            if (state.volume === 0) {
-                try { if (state.source) state.source.stop(); } catch(e) {}
-                try { if (state.source) state.source.disconnect(); } catch(e) {}
-                if (state.extras) {
-                    state.extras.forEach(n => { try { n.stop(); } catch(e) {} try { n.disconnect(); } catch(e) {} });
-                }
-                if (state.gain) state.gain.disconnect();
-                state.source = null;
-                state.gain = null;
-                state.extras = null;
-            }
-        }, 300);
-        state.initialized = false;
-        state.type = null;
         return;
     }
 
     // Set volume based on layer type
     if (state.type === 'sample' && state.audio) {
         state.audio.volume = vol * masterVolume;
+        // Resume paused sample (was paused at vol=0, not destroyed)
+        if (state.audio.paused) {
+            state.audio.play().catch(() => {});
+        }
     } else if (state.gain) {
         state.gain.gain.cancelScheduledValues(audioCtx.currentTime);
         state.gain.gain.setValueAtTime(state.gain.gain.value, audioCtx.currentTime);
