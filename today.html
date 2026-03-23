@@ -21,11 +21,13 @@
         .mix-link { display: inline-block; font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: 2px; color: var(--accent); text-decoration: none; border: 1px solid rgba(122,138,106,0.2); padding: 8px 20px; border-radius: 20px; transition: all 0.3s; }
         .mix-link:hover { border-color: var(--accent); box-shadow: 0 0 16px rgba(122,138,106,0.1); }
 
-        .trending { margin-bottom: 48px; }
-        .trending-label { font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 4px; color: var(--text-dim); margin-bottom: 12px; }
-        .trending-list { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
-        .trending-item { font-size: 14px; font-weight: 300; color: var(--text-secondary); }
-        .trending-count { font-family: 'Space Mono', monospace; font-size: 9px; color: var(--text-dim); margin-left: 4px; }
+        .trending { margin-bottom: 48px; max-width: 360px; width: 100%; }
+        .trending-label { font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 4px; color: var(--text-dim); margin-bottom: 16px; }
+        .trend-row { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+        .trend-name { font-size: 12px; color: var(--text-secondary); width: 70px; text-align: right; }
+        .trend-bar-wrap { flex: 1; height: 4px; background: rgba(255,255,255,0.03); border-radius: 2px; overflow: hidden; }
+        .trend-bar { height: 100%; background: var(--accent); border-radius: 2px; box-shadow: 0 0 6px rgba(122,138,106,0.1); }
+        .trend-count { font-family: 'Space Mono', monospace; font-size: 9px; color: var(--text-dim); width: 24px; }
 
         .stats { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--text-dim); letter-spacing: 2px; }
 
@@ -87,12 +89,17 @@
     .then(r => r.json())
     .then(layers => {
         if (layers && layers.length > 0) {
+            const max = layers[0].count || 1;
             const el = document.getElementById('trending');
             el.innerHTML = `
                 <p class="trending-label">TRENDING</p>
-                <div class="trending-list">
-                    ${layers.slice(0, 5).map(l => `<span class="trending-item">${l.layer || l.name}<span class="trending-count">${l.count || ''}</span></span>`).join('')}
-                </div>
+                ${layers.slice(0, 5).map(l => `
+                    <div class="trend-row">
+                        <span class="trend-name">${l.layer || l.name}</span>
+                        <div class="trend-bar-wrap"><div class="trend-bar" style="width:${((l.count || 0) / max * 100).toFixed(0)}%"></div></div>
+                        <span class="trend-count">${l.count || 0}</span>
+                    </div>
+                `).join('')}
             `;
         }
     }).catch(() => {});
