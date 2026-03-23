@@ -355,6 +355,7 @@
                 display.textContent = 'goodnight';
                 document.getElementById('status').textContent = 'silence';
                 document.body.classList.add('fading');
+                if (window.nwlTrack) window.nwlTrack('sleep_complete', { duration: selectedDuration, mix: Object.keys(selectedMix).join('+') });
             }
         }, 1000);
 
