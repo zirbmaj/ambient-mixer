@@ -113,6 +113,37 @@
             color: var(--accent);
             box-shadow: 0 0 15px var(--accent-glow);
         }
+        .quick-starts {
+            margin-top: 32px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .quick-start {
+            font-family: 'Space Mono', monospace;
+            font-size: 11px;
+            letter-spacing: 1px;
+            color: var(--text-dim);
+            text-decoration: none;
+            padding: 8px 16px;
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 20px;
+            transition: all 0.3s;
+        }
+        .quick-start:hover {
+            color: var(--text-secondary);
+            border-color: rgba(122, 138, 106, 0.2);
+        }
+        .quick-starts-label {
+            font-family: 'Space Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 3px;
+            color: var(--text-dim);
+            margin-top: 40px;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+        }
         .features {
             padding: 80px 24px;
             max-width: 900px;
@@ -255,6 +286,8 @@
             .sound-tag { padding: 8px 16px; font-size: 12px; }
             .bottom-cta p { font-size: 20px; }
             .bottom-cta { padding: 60px 24px; }
+            .quick-starts { gap: 8px; }
+            .quick-start { font-size: 10px; padding: 6px 12px; }
         }
         @media (max-width: 400px) {
             .hero-logo { font-size: 36px; letter-spacing: 8px; }
@@ -280,6 +313,13 @@
         <div class="hero-actions">
             <a href="app.html" class="cta-btn">Start Mixing</a>
             <button class="try-btn" id="try-btn" onclick="togglePreview()">▶ Preview</button>
+        </div>
+        <p class="quick-starts-label">or jump in</p>
+        <div class="quick-starts">
+            <a class="quick-start" href="app.html?mix=eyJyYWluIjo2MCwiY2FmZSI6NDUsInZpbnlsIjoyMH0=">🌧 rainy cafe</a>
+            <a class="quick-start" href="app.html?mix=eyJicm93bi1ub2lzZSI6NzAsInJhaW4iOjI1fQ==">🟤 deep focus</a>
+            <a class="quick-start" href="app.html?mix=eyJmaXJlIjo3MCwic25vdyI6NDAsIndpbmQiOjI1fQ==">🔥 winter cabin</a>
+            <a class="quick-start" href="app.html?mix=eyJ0cmFpbiI6NjUsInJhaW4iOjMwLCJkcm9uZSI6MTV9">🚂 night train</a>
         </div>
     </section>
 
