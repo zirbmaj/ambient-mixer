@@ -89,17 +89,28 @@ const LAYERS = [
         category: 'weather',
         type: 'synthesis',
         create: (ctx, dest) => {
+            // Wind: bandpass noise (mid-range whoosh) + slow LFO modulation
             const noise = createNoise(ctx);
             const filter = ctx.createBiquadFilter();
-            filter.type = 'lowpass';
-            filter.frequency.value = 300;
+            filter.type = 'bandpass';
+            filter.frequency.value = 500;
+            filter.Q.value = 0.3;
             const gain = ctx.createGain();
             gain.gain.value = 0;
             noise.connect(filter);
             filter.connect(gain);
             gain.connect(dest);
             noise.start();
-            return { source: noise, gain };
+            // LFO for gusty modulation
+            const lfo = ctx.createOscillator();
+            lfo.type = 'sine';
+            lfo.frequency.value = 0.15; // slow gusts
+            const lfoGain = ctx.createGain();
+            lfoGain.gain.value = 150; // modulates filter freq ±150hz
+            lfo.connect(lfoGain);
+            lfoGain.connect(filter.frequency);
+            lfo.start();
+            return { source: noise, gain, extras: [lfo, lfoGain] };
         }
     },
     {
@@ -466,6 +477,7 @@ const LAYERS = [
         category: 'weather',
         type: 'synthesis',
         create: (ctx, dest) => {
+            // Warm indoor silence — low filtered noise + furnace hum
             const noise = createNoise(ctx);
             const filter = ctx.createBiquadFilter();
             filter.type = 'lowpass';
@@ -477,7 +489,16 @@ const LAYERS = [
             filter.connect(gain);
             gain.connect(dest);
             noise.start();
-            return { source: noise, gain };
+            // Subtle furnace hum
+            const hum = ctx.createOscillator();
+            hum.type = 'sine';
+            hum.frequency.value = 50;
+            const humGain = ctx.createGain();
+            humGain.gain.value = 0;
+            hum.connect(humGain);
+            humGain.connect(dest);
+            hum.start();
+            return { source: noise, gain, extras: [hum, humGain] };
         }
     },
 ];
