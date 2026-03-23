@@ -1446,6 +1446,17 @@ function renderDefaultMixes() {
     });
 }
 
+// Keyboard hint for first-time visitors
+if (!localStorage.getItem('drift_hint_shown')) {
+    const hint = document.createElement('div');
+    hint.textContent = 'space to play · m to mute · 1-6 for presets';
+    hint.style.cssText = 'position:fixed;bottom:60px;left:50%;transform:translateX(-50%);font-family:"Space Mono",monospace;font-size:9px;color:rgba(255,255,255,0.2);letter-spacing:2px;z-index:50;transition:opacity 2s;pointer-events:none;';
+    document.body.appendChild(hint);
+    setTimeout(() => { hint.style.opacity = '0'; }, 5000);
+    setTimeout(() => { hint.remove(); }, 7000);
+    localStorage.setItem('drift_hint_shown', 'true');
+}
+
 // Keyboard shortcuts
 document.addEventListener('keydown', (e) => {
     if (e.target.tagName === 'INPUT' && e.target.type !== 'range') return;
