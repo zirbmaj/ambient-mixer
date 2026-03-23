@@ -1,0 +1,26 @@
+{
+  "redirects": [
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "ambient-mixer-iota.vercel.app"
+        }
+      ],
+      "destination": "https://drift.nowherelabs.dev/$1",
+      "permanent": true
+    },
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "drift-ambient.vercel.app"
+        }
+      ],
+      "destination": "https://drift.nowherelabs.dev/$1",
+      "permanent": true
+    }
+  ]
+}
