@@ -207,8 +207,21 @@ body {
 }
 
 .layer-card.active .layer-icon {
-    background: rgba(122, 138, 106, 0.1);
+    background: rgba(122, 138, 106, 0.15);
     color: var(--accent);
+    box-shadow: 0 0 12px var(--accent-glow);
+}
+
+.layer-card.muted .layer-icon {
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--text-dim);
+    opacity: 0.4;
+    box-shadow: none;
+}
+
+.layer-card.muted .layer-name {
+    text-decoration: line-through;
+    opacity: 0.4;
 }
 
 .layer-name {
@@ -301,26 +314,6 @@ body {
 
 .layer-card.active .layer-val {
     color: var(--text-secondary);
-}
-
-.layer-mute {
-    background: none;
-    border: none;
-    color: var(--text-dim);
-    font-size: 12px;
-    cursor: pointer;
-    padding: 4px;
-    opacity: 0;
-    transition: opacity 0.2s;
-}
-
-.layer-card:hover .layer-mute,
-.layer-card.active .layer-mute {
-    opacity: 0.5;
-}
-
-.layer-card.active .layer-mute:hover {
-    opacity: 1;
 }
 
 /* Controls Bar */

@@ -948,7 +948,7 @@ function buildLayerCard(layer, parent) {
     card.className = 'layer-card';
     card.id = `layer-${layer.id}`;
     card.innerHTML = `
-        <div class="layer-icon">${layer.icon}</div>
+        <div class="layer-icon" title="Click to mute/unmute">${layer.icon}</div>
         <div class="layer-name">${layer.name}</div>
         <div class="slider-container">
             <canvas class="wave-canvas" width="200" height="32"></canvas>
@@ -956,12 +956,13 @@ function buildLayerCard(layer, parent) {
                 min="0" max="100" value="0" />
         </div>
         <div class="layer-val" id="val-${layer.id}">0%</div>
-        <button class="layer-mute" title="Mute/unmute">◉</button>
     `;
 
-    // Mute toggle — silence without losing volume level
+    // Icon click = mute toggle — click the icon to silence, click again to restore
     let savedVolume = 0;
-    card.querySelector('.layer-mute').addEventListener('click', (e) => {
+    const icon = card.querySelector('.layer-icon');
+    icon.style.cursor = 'pointer';
+    icon.addEventListener('click', (e) => {
         e.stopPropagation();
         const slider = card.querySelector('.layer-slider');
         const current = parseInt(slider.value);
@@ -969,11 +970,11 @@ function buildLayerCard(layer, parent) {
             savedVolume = current;
             slider.value = 0;
             slider.dispatchEvent(new Event('input'));
-            card.querySelector('.layer-mute').style.opacity = '0.3';
+            card.classList.add('muted');
         } else if (savedVolume > 0) {
             slider.value = savedVolume;
             slider.dispatchEvent(new Event('input'));
-            card.querySelector('.layer-mute').style.opacity = '1';
+            card.classList.remove('muted');
         }
         uiTick();
     });
