@@ -1528,16 +1528,27 @@ try {
     if (hasMix) {
         document.querySelector('.tagline').textContent = 'someone shared a mix with you — click anywhere to listen';
     } else {
-        // Cold start: pre-load rainy cafe visually so the mixer isn't empty
+        // Cold start: pre-load rainy cafe VISUALLY only (no audio until user gesture)
         const defaultMix = { rain: 60, cafe: 45, vinyl: 20 };
         Object.entries(defaultMix).forEach(([id, val]) => {
             const slider = document.getElementById(`slider-${id}`);
             if (slider) {
                 slider.value = val;
-                slider.dispatchEvent(new Event('input'));
+                // Update visual state without triggering audio
+                const card = document.getElementById(`layer-${id}`);
+                if (card) {
+                    card.classList.add('active');
+                    const valEl = card.querySelector('.layer-val');
+                    if (valEl) valEl.textContent = `${val}%`;
+                }
             }
         });
         document.querySelector('.tagline').textContent = 'rain + cafe + vinyl — click anywhere to listen';
+        // On first interaction, load the mix properly with audio
+        document.addEventListener('click', function coldStartPlay() {
+            loadPreset(defaultMix);
+            document.removeEventListener('click', coldStartPlay);
+        }, { once: true });
     }
 } catch(e) {
     console.warn('Drift init error:', e);
