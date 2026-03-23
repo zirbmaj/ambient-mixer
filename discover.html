@@ -30,6 +30,18 @@
             transform: translateY(-2px);
             box-shadow: 0 4px 16px var(--accent-glow);
         }
+        .mix-card.popular {
+            border-color: rgba(196, 122, 122, 0.12);
+        }
+        .mix-card.popular:hover {
+            border-color: rgba(196, 122, 122, 0.3);
+            box-shadow: 0 4px 16px rgba(196, 122, 122, 0.1);
+        }
+        .mix-card.popular .mix-card-name::after {
+            content: ' ♥';
+            color: rgba(196, 122, 122, 0.4);
+            font-size: 11px;
+        }
         .mix-card-name { font-size: 15px; font-weight: 400; margin-bottom: 6px; }
         .mix-card-layers { font-size: 11px; color: var(--text-dim); line-height: 1.5; }
         .mix-fingerprint {
@@ -120,7 +132,7 @@
                 const likes = mix.likes || 0;
 
                 const card = document.createElement('a');
-                card.className = 'mix-card';
+                card.className = `mix-card${likes >= 5 ? ' popular' : ''}`;
                 card.href = `app.html?mix=${encoded}`;
                 card.innerHTML = `
                     <div class="mix-card-name">${mix.name}</div>
