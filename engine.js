@@ -571,7 +571,20 @@ const EASTER_EGGS = {
     ],
 };
 
+// Time-based messages (rare, 20% chance)
+const TIME_EGGS = {
+    3: 'you found the 3am frequency. nobody else is here',
+    4: 'the hour before dawn. the quietest hour. you chose well',
+    0: 'midnight mix. the day is done. this is yours now',
+    23: 'the last hour. make it count',
+};
+
 function checkEasterEgg(active) {
+    // Check time-based (20% chance, any active layers)
+    const hour = new Date().getHours();
+    if (active.length > 0 && TIME_EGGS[hour] && Math.random() < 0.2) {
+        return TIME_EGGS[hour];
+    }
     // Check solo at 100%
     if (active.length === 1) {
         const id = active[0].id;
