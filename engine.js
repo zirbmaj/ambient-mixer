@@ -1570,3 +1570,26 @@ try {
 } catch(e) {
     console.warn('Drift init error:', e);
 }
+
+// Trending layers — show what other people are mixing
+(function() {
+    const SB_URL = 'https://lxecuywjwasxijxgnutn.supabase.co';
+    const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx4ZWN1eXdqd2FzeGlqeGdudXRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxNDM3OTIsImV4cCI6MjA4OTcxOTc5Mn0.Wyq_doDaRZ7EfdpwM2W0_BNtaVI47yN-4cy4yTWl7jo';
+    fetch(`${SB_URL}/rest/v1/rpc/get_trending_layers`, {
+        method: 'POST',
+        headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`, 'Content-Type': 'application/json' },
+        body: '{}'
+    })
+    .then(r => r.json())
+    .then(layers => {
+        if (layers && layers.length > 0) {
+            const bar = document.getElementById('trending-bar');
+            if (bar) {
+                const names = layers.slice(0, 5).map(l => l.layer || l.name).join(' · ');
+                bar.textContent = `trending: ${names}`;
+                bar.style.display = 'block';
+            }
+        }
+    })
+    .catch(() => {});
+})();
