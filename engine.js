@@ -1560,7 +1560,7 @@ try {
                 }
             }
         });
-        document.querySelector('.tagline').textContent = 'rain + cafe + vinyl — click anywhere to listen';
+        document.querySelector('.tagline').textContent = 'slide rain to hear it — or tap anywhere to start';
         // On first interaction, load the mix properly with audio
         document.addEventListener('click', function coldStartPlay() {
             loadPreset(defaultMix);
