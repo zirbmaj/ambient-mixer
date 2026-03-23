@@ -551,6 +551,22 @@
         .catch(() => {}); // graceful fallback — just don't show anything
     })();
     </script>
+    <script>
+    // Pass UTM params through to internal links (PH launch attribution)
+    (function() {
+        const params = new URLSearchParams(window.location.search);
+        const utms = {};
+        ['utm_source', 'utm_medium', 'utm_campaign'].forEach(k => {
+            if (params.has(k)) utms[k] = params.get(k);
+        });
+        if (Object.keys(utms).length === 0) return;
+        const suffix = new URLSearchParams(utms).toString();
+        document.querySelectorAll('a[href^="app.html"]').forEach(a => {
+            const sep = a.href.includes('?') ? '&' : '?';
+            a.href += sep + suffix;
+        });
+    })();
+    </script>
     <script src="https://nowherelabs.dev/nav.js" defer></script>
     <script src="https://nowherelabs.dev/track.js" data-project="drift"></script>
 </body>
