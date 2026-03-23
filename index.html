@@ -124,22 +124,6 @@
             0%, 100% { opacity: 0.9; }
             50% { opacity: 1; }
         }
-        .weather-suggest {
-            font-size: 13px;
-            font-weight: 300;
-            color: var(--text-secondary);
-            margin-top: 20px;
-            opacity: 0;
-            transition: opacity 1.5s ease;
-        }
-        .weather-suggest.visible { opacity: 1; }
-        .weather-suggest a {
-            color: var(--accent);
-            text-decoration: none;
-        }
-        .weather-suggest a:hover {
-            text-decoration: underline;
-        }
         .social-proof {
             font-family: 'Space Mono', monospace;
             font-size: 9px;
@@ -360,7 +344,6 @@
             <a class="quick-start" href="app.html?mix=eyJmaXJlIjo3MCwic25vdyI6NDAsIndpbmQiOjI1fQ==" data-nwl-track="quickstart_click" data-nwl-label="winter cabin">🔥 winter cabin</a>
             <a class="quick-start" href="app.html?mix=eyJ0cmFpbiI6NjUsInJhaW4iOjMwLCJkcm9uZSI6MTV9" data-nwl-track="quickstart_click" data-nwl-label="night train">🚂 night train</a>
         </div>
-        <p class="weather-suggest" id="weather-suggest"></p>
         <p class="social-proof" id="social-proof"></p>
     </section>
 
@@ -490,31 +473,6 @@
         btn.classList.add('playing');
         document.querySelector('.hero').classList.add('previewing');
     }
-    </script>
-    <script>
-    // Weather suggestion — personalized mix based on actual weather
-    (function() {
-        const SB_URL = 'https://lxecuywjwasxijxgnutn.supabase.co';
-        const weatherMixes = {
-            rain: { name: 'rainy day', mix: 'eyJyYWluIjo2MCwiY2FmZSI6NDUsInZpbnlsIjoyMH0=', emoji: '🌧' },
-            snow: { name: 'snowy evening', mix: 'eyJmaXJlIjo3MCwic25vdyI6NDAsIndpbmQiOjI1fQ==', emoji: '❄' },
-            thunder: { name: 'storm session', mix: 'eyJyYWluIjo1MCwidGh1bmRlciI6MjAsImRyb25lIjoxMH0=', emoji: '⛈' },
-            clear: { name: 'clear night', mix: 'eyJicm93bi1ub2lzZSI6NzAsInJhaW4iOjI1fQ==', emoji: '🌙' },
-            clouds: { name: 'cloudy focus', mix: 'eyJicm93bi1ub2lzZSI6NzAsInJhaW4iOjI1fQ==', emoji: '☁' },
-        };
-        fetch(`${SB_URL}/functions/v1/get-weather`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' })
-        .then(r => r.ok ? r.json() : null)
-        .then(data => {
-            if (!data || !data.condition) return;
-            const match = weatherMixes[data.condition] || weatherMixes.clear;
-            const el = document.getElementById('weather-suggest');
-            if (el) {
-                el.innerHTML = `${match.emoji} it's ${data.condition} in ${data.city || 'your area'} — <a href="app.html?mix=${match.mix}">${match.name}</a>`;
-                setTimeout(() => el.classList.add('visible'), 1500);
-            }
-        })
-        .catch(() => {}); // graceful silence if edge function doesn't exist yet
-    })();
     </script>
     <script>
     // Social proof — how many people mixed today
