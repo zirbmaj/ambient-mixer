@@ -536,10 +536,31 @@ body {
     justify-content: center;
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
+    overflow: hidden;
+}
+
+.mobile-start-overlay::before {
+    content: '';
+    position: absolute;
+    width: 600px;
+    height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(122, 138, 106, 0.06) 0%, transparent 70%);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    animation: breathe 4s ease-in-out infinite;
+}
+
+@keyframes breathe {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.6; }
+    50% { transform: translate(-50%, -50%) scale(1.15); opacity: 1; }
 }
 
 .start-content {
     text-align: center;
+    position: relative;
+    z-index: 1;
 }
 
 .start-logo {
@@ -559,11 +580,24 @@ body {
     animation: pulse 2s ease-in-out infinite;
 }
 
+.start-subtitle {
+    font-size: 12px;
+    color: var(--text-secondary);
+    letter-spacing: 3px;
+    margin-bottom: 32px;
+    font-weight: 300;
+}
+
 .start-hint {
-    font-size: 10px;
-    color: var(--text-dim);
-    margin-top: 16px;
-    letter-spacing: 1px;
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-top: 20px;
+    letter-spacing: 0.5px;
+    font-weight: 300;
+    max-width: 300px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.5;
 }
 
 /* Shared mix preview on start overlay */
