@@ -721,6 +721,12 @@ body {
     .preset-controls {
         width: 100%;
         justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .preset-btn {
+        padding: 6px 10px;
+        font-size: 9px;
     }
 }
 /* cache bust 1774220673 */
