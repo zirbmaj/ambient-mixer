@@ -31,9 +31,24 @@
             box-shadow: 0 4px 16px var(--accent-glow);
         }
         .mix-card-name { font-size: 15px; font-weight: 400; margin-bottom: 6px; }
-        .mix-fingerprint { display: flex; gap: 3px; margin-bottom: 8px; justify-content: center; }
-        .fp-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent, #7a8a6a); display: inline-block; transition: opacity 0.3s; }
         .mix-card-layers { font-size: 11px; color: var(--text-dim); line-height: 1.5; }
+        .mix-fingerprint {
+            display: flex;
+            gap: 3px;
+            margin: 10px 0 4px;
+            align-items: flex-end;
+            height: 12px;
+        }
+        .mix-fingerprint .fp-dot {
+            width: 4px;
+            border-radius: 1px;
+            background: var(--accent);
+            transition: height 0.3s;
+        }
+        .mix-fingerprint .fp-dot.off {
+            background: rgba(255,255,255,0.03);
+            height: 2px !important;
+        }
         .mix-card-meta { font-family: 'Space Mono', monospace; font-size: 9px; color: var(--text-dim); margin-top: 8px; }
         .empty-state { text-align: center; color: var(--text-dim); font-size: 14px; padding: 60px 0; font-weight: 300; }
         .empty-state a { color: var(--accent); text-decoration: none; }
@@ -70,25 +85,28 @@
             if (!mixes.length) return;
             grid.innerHTML = '';
 
+            const ALL_LAYERS = ['rain','heavy-rain','thunder','wind','fire','vinyl','cafe','crickets','waves','drone','brown-noise','white-noise','train','birds','leaves','snow'];
+
             mixes.forEach(mix => {
                 const layers = Object.keys(mix.levels).join(' + ');
                 const encoded = btoa(JSON.stringify(mix.levels));
                 const ago = timeAgo(new Date(mix.created_at));
 
+                // Build fingerprint
+                const fpDots = ALL_LAYERS.map(id => {
+                    const vol = mix.levels[id] || 0;
+                    if (vol === 0) return '<div class="fp-dot off"></div>';
+                    const h = 2 + (vol / 100) * 10; // 2-12px height based on volume
+                    const o = 0.3 + (vol / 100) * 0.7; // 0.3-1.0 opacity
+                    return `<div class="fp-dot" style="height:${h}px;opacity:${o}"></div>`;
+                }).join('');
+
                 const card = document.createElement('a');
                 card.className = 'mix-card';
                 card.href = `app.html?mix=${encoded}`;
-                // Sound fingerprint — 16 dots showing which layers are active
-                const allLayers = ['rain','heavy-rain','thunder','wind','fire','vinyl','cafe','crickets','waves','drone','brown-noise','white-noise','train','birds','leaves','snow'];
-                const dots = allLayers.map(l => {
-                    const vol = mix.levels[l] || 0;
-                    const opacity = vol > 0 ? 0.2 + (vol / 100) * 0.8 : 0.05;
-                    return `<span class="fp-dot" style="opacity:${opacity}" title="${l}"></span>`;
-                }).join('');
-
                 card.innerHTML = `
                     <div class="mix-card-name">${mix.name}</div>
-                    <div class="mix-fingerprint">${dots}</div>
+                    <div class="mix-fingerprint">${fpDots}</div>
                     <div class="mix-card-layers">${layers}</div>
                     <div class="mix-card-meta">${ago}${mix.plays > 0 ? ` · ${mix.plays} plays` : ''}</div>
                 `;
