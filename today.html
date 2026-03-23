@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Today on Drift</title>
+    <meta name="description" content="What's happening on Drift right now. Trending layers, featured mix, and who's mixing today.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root { --bg: #06060a; --text: #d4d0c8; --text-dim: #2e2c28; --text-secondary: #7a7570; --accent: #7a8a6a; }
+        body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 24px; }
+
+        .today { max-width: 500px; text-align: center; }
+        .today-label { font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 6px; color: var(--text-dim); margin-bottom: 32px; }
+        .today-date { font-size: 12px; color: var(--text-dim); margin-bottom: 48px; }
+
+        .mix-feature { margin-bottom: 48px; }
+        .mix-name { font-size: 28px; font-weight: 200; letter-spacing: 2px; margin-bottom: 8px; }
+        .mix-layers { font-size: 13px; color: var(--text-secondary); margin-bottom: 16px; }
+        .mix-link { display: inline-block; font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: 2px; color: var(--accent); text-decoration: none; border: 1px solid rgba(122,138,106,0.2); padding: 8px 20px; border-radius: 20px; transition: all 0.3s; }
+        .mix-link:hover { border-color: var(--accent); box-shadow: 0 0 16px rgba(122,138,106,0.1); }
+
+        .trending { margin-bottom: 48px; }
+        .trending-label { font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 4px; color: var(--text-dim); margin-bottom: 12px; }
+        .trending-list { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+        .trending-item { font-size: 14px; font-weight: 300; color: var(--text-secondary); }
+        .trending-count { font-family: 'Space Mono', monospace; font-size: 9px; color: var(--text-dim); margin-left: 4px; }
+
+        .stats { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--text-dim); letter-spacing: 2px; }
+
+        .back { margin-top: 48px; font-family: 'Space Mono', monospace; font-size: 9px; }
+        .back a { color: var(--text-dim); text-decoration: none; letter-spacing: 2px; }
+        .back a:hover { color: var(--text-secondary); }
+
+        .loading { color: var(--text-dim); font-size: 12px; animation: pulse 2s ease-in-out infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 0.6; } }
+    </style>
+</head>
+<body>
+    <div class="today">
+        <p class="today-label">TODAY ON DRIFT</p>
+        <p class="today-date" id="today-date"></p>
+
+        <div class="mix-feature" id="mix-feature">
+            <p class="loading">loading...</p>
+        </div>
+
+        <div class="trending" id="trending">
+        </div>
+
+        <div class="stats" id="stats"></div>
+
+        <div class="back">
+            <a href="app.html">start mixing</a> · <a href="discover.html">discover</a> · <a href="https://nowherelabs.dev">nowhere labs</a>
+        </div>
+    </div>
+
+    <script>
+    const SB_URL = 'https://lxecuywjwasxijxgnutn.supabase.co';
+    const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx4ZWN1eXdqd2FzeGlqeGdudXRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxNDM3OTIsImV4cCI6MjA4OTcxOTc5Mn0.Wyq_doDaRZ7EfdpwM2W0_BNtaVI47yN-4cy4yTWl7jo';
+    const headers = { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`, 'Content-Type': 'application/json' };
+
+    // Date
+    const d = new Date();
+    const days = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
+    const months = ['january','february','march','april','may','june','july','august','september','october','november','december'];
+    document.getElementById('today-date').textContent = `${days[d.getDay()]}, ${months[d.getMonth()]} ${d.getDate()}`;
+
+    // Mix of the day
+    fetch(`${SB_URL}/rest/v1/rpc/get_mix_of_the_day`, { method: 'POST', headers, body: '{}' })
+    .then(r => r.json())
+    .then(mix => {
+        if (mix && mix.name) {
+            const encoded = btoa(JSON.stringify(mix.levels));
+            const layers = Object.keys(mix.levels).join(' + ');
+            document.getElementById('mix-feature').innerHTML = `
+                <div class="mix-name">${mix.name}</div>
+                <div class="mix-layers">${layers}</div>
+                <a class="mix-link" href="app.html?mix=${encoded}">listen now</a>
+            `;
+        }
+    }).catch(() => {});
+
+    // Trending layers
+    fetch(`${SB_URL}/rest/v1/rpc/get_trending_layers`, { method: 'POST', headers, body: '{}' })
+    .then(r => r.json())
+    .then(layers => {
+        if (layers && layers.length > 0) {
+            const el = document.getElementById('trending');
+            el.innerHTML = `
+                <p class="trending-label">TRENDING</p>
+                <div class="trending-list">
+                    ${layers.slice(0, 5).map(l => `<span class="trending-item">${l.layer || l.name}<span class="trending-count">${l.count || ''}</span></span>`).join('')}
+                </div>
+            `;
+        }
+    }).catch(() => {});
+
+    // Stats
+    fetch(`${SB_URL}/rest/v1/rpc/get_mixers_today`, { method: 'POST', headers, body: '{}' })
+    .then(r => r.json())
+    .then(count => {
+        if (count > 0) {
+            document.getElementById('stats').textContent = `${count} ${count === 1 ? 'person' : 'people'} mixed today`;
+        }
+    }).catch(() => {});
+    </script>
+
+    <script src="https://nowherelabs.dev/nav.js" defer></script>
+    <script src="https://nowherelabs.dev/track.js" data-project="drift"></script>
+</body>
+</html>
