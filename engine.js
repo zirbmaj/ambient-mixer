@@ -886,6 +886,7 @@ function setLayerVolume(layerId, vol) {
     if (vol === 0 && state.initialized) {
         if (state.type === 'sample' && state.audio) {
             // Pause sample but keep it loaded — instant resume on re-engage
+            clearInterval(state._fadeInterval);
             state.audio.pause();
             state.audio.volume = 0;
         }
@@ -911,15 +912,27 @@ function setLayerVolume(layerId, vol) {
 
     // Set volume based on layer type
     if (state.type === 'sample' && state.audio) {
-        state.audio.volume = vol * masterVolume;
-        // Resume paused sample (was paused at vol=0, not destroyed)
+        const target = vol * masterVolume;
+        // Fade sample volume over 0.5s to soften transient attack
         if (state.audio.paused) {
+            state.audio.volume = 0;
             state.audio.play().catch(() => {});
         }
+        const start = state.audio.volume;
+        if (Math.abs(target - start) < 0.01) { state.audio.volume = target; return; }
+        const steps = 25;
+        const stepMs = 500 / steps; // 0.5s ramp
+        let step = 0;
+        clearInterval(state._fadeInterval);
+        state._fadeInterval = setInterval(() => {
+            step++;
+            state.audio.volume = start + (target - start) * (step / steps);
+            if (step >= steps) { state.audio.volume = target; clearInterval(state._fadeInterval); }
+        }, stepMs);
     } else if (state.gain) {
         state.gain.gain.cancelScheduledValues(audioCtx.currentTime);
         state.gain.gain.setValueAtTime(state.gain.gain.value, audioCtx.currentTime);
-        state.gain.gain.linearRampToValueAtTime(vol * 0.15, audioCtx.currentTime + 0.2);
+        state.gain.gain.linearRampToValueAtTime(vol * 0.15, audioCtx.currentTime + 0.4);
     }
 }
 
