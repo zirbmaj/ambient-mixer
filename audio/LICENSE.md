@@ -1,3 +1,11 @@
+---
+title: Audio Sample Licensing
+date: 2026-03-22
+type: reference
+scope: product
+summary: Licensing info for Drift audio samples — all sourced from Pixabay
+---
+
 # Audio Sample Licensing
 
 All MP3 samples in this directory are sourced from **Pixabay** (pixabay.com).
