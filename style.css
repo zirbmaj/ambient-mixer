@@ -10,7 +10,7 @@
     --bg-card-active: #141420;
     --text: #d8d4cc;
     --text-secondary: #8a8580;
-    --text-dim: #4a4640;
+    --text-dim: #8a8580;
     --accent: #7a8a6a;
     --accent-glow: rgba(122, 138, 106, 0.15);
     --border: rgba(255, 255, 255, 0.07);
@@ -147,7 +147,6 @@ body {
     margin-bottom: 14px;
     padding-bottom: 8px;
     border-bottom: none;
-    opacity: 0.6;
 }
 
 .layer-card {
@@ -404,9 +403,8 @@ body {
     font-family: 'Space Mono', monospace;
     font-size: 11px;
     letter-spacing: 3px;
-    color: var(--text-primary);
+    color: var(--text-secondary);
     white-space: nowrap;
-    opacity: 0.7;
 }
 
 .vol-slider {
