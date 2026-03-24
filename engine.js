@@ -1196,7 +1196,7 @@ function buildMixer() {
     toggle.className = 'show-all-btn';
     toggle.id = 'show-all-btn';
     if (showAllLayers) toggle.style.display = 'none';
-    toggle.textContent = 'show all 16 layers';
+    toggle.textContent = 'show all 17 layers';
     toggle.addEventListener('click', () => {
         showAllLayers = !showAllLayers;
         localStorage.setItem('drift_show_all', showAllLayers);
@@ -1212,7 +1212,7 @@ function buildMixer() {
                 }
             });
             document.querySelectorAll('.cat-header').forEach(el => el.style.display = 'none');
-            toggle.textContent = 'show all 16 layers';
+            toggle.textContent = 'show all 17 layers';
         }
     });
     grid.appendChild(toggle);
