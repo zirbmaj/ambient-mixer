@@ -966,7 +966,7 @@ function togglePlayback() {
         // Resume with current levels
         Object.entries(layerStates).forEach(([id, state]) => {
             if (state.active && state.gain) {
-                state.gain.gain.linearRampToValueAtTime(state.volume * 0.3, audioCtx.currentTime + 0.3);
+                state.gain.gain.linearRampToValueAtTime(state.volume * 0.15, audioCtx.currentTime + 0.3);
             }
             if (state.active && state.type === 'sample' && state.audio) {
                 state.audio.play().catch(() => {});
