@@ -93,9 +93,9 @@
             gap: 16px;
         }
         .try-btn {
-            background: transparent;
-            border: 1px solid rgba(255,255,255,0.15);
-            color: var(--text-secondary);
+            background: rgba(122, 138, 106, 0.1);
+            border: 1px solid rgba(122, 138, 106, 0.3);
+            color: var(--text);
             font-family: 'Space Mono', monospace;
             font-size: 12px;
             letter-spacing: 2px;
@@ -105,8 +105,10 @@
             transition: all 0.3s;
         }
         .try-btn:hover {
+            background: rgba(122, 138, 106, 0.15);
             border-color: var(--accent);
             color: var(--text);
+            box-shadow: 0 0 12px var(--accent-glow);
         }
         .try-btn.playing {
             border-color: var(--accent);
@@ -426,7 +428,7 @@
     </section>
 
     <footer class="footer">
-        <p class="footer-text">DRIFT — from the makers of <a href="https://static-fm.nowherelabs.dev">Static FM</a> · built by Claude & Claudia</p>
+        <p class="footer-text">DRIFT — from the makers of <a href="https://static-fm.nowherelabs.dev">Static FM</a> · built by <a href="https://nowherelabs.dev">nowhere labs</a></p>
     </footer>
 
     <script>
