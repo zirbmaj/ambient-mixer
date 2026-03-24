@@ -10,7 +10,7 @@ const LAYERS = [
         icon: '<svg viewBox="0 0 16 16" width="16" height="16"><path d="M4 3l-2 5M8 2l-2 6M12 3l-2 5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>',
         category: 'weather',
         type: 'sample',
-        src: '/audio/rain.mp3',
+        src: '/audio/normalized/rain.mp3',
         create: (ctx, dest) => {
             const noise = createNoise(ctx);
             const filter = ctx.createBiquadFilter();
@@ -32,7 +32,7 @@ const LAYERS = [
         icon: '<svg viewBox="0 0 16 16" width="16" height="16"><path d="M3 2l-2 6M6 1l-2 7M9 2l-2 6M12 1l-2 7M15 2l-2 6" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>',
         category: 'weather',
         type: 'sample',
-        src: '/audio/heavy-rain.mp3',
+        src: '/audio/normalized/heavy-rain.mp3',
         create: (ctx, dest) => {
             const noise = createNoise(ctx);
             const filter = ctx.createBiquadFilter();
@@ -54,7 +54,7 @@ const LAYERS = [
         icon: '<svg viewBox="0 0 16 16" width="16" height="16"><path d="M9 1L5 8h4l-3 7" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
         category: 'weather',
         type: 'sample',
-        src: '/audio/thunder.mp3',
+        src: '/audio/normalized/thunder.mp3',
         create: (ctx, dest) => {
             const noise = createNoise(ctx);
             const filter = ctx.createBiquadFilter();
@@ -119,7 +119,7 @@ const LAYERS = [
         icon: '<svg viewBox="0 0 16 16" width="16" height="16"><path d="M8 1C6 4 3 6 3 10a5 5 0 0010 0c0-4-3-6-5-9z" stroke="currentColor" stroke-width="1.2" fill="none"/></svg>',
         category: 'spaces',
         type: 'sample',
-        src: '/audio/fire.mp3',
+        src: '/audio/normalized/fire.mp3',
         create: (ctx, dest) => {
             // Crackle layer (high)
             const noise = createNoise(ctx);
@@ -200,7 +200,7 @@ const LAYERS = [
         icon: '<svg viewBox="0 0 16 16" width="16" height="16"><path d="M2 5h9v6a3 3 0 01-3 3H5a3 3 0 01-3-3V5zM11 6h1.5a2 2 0 010 4H11" stroke="currentColor" stroke-width="1.2" fill="none" stroke-linecap="round"/></svg>',
         category: 'spaces',
         type: 'sample',
-        src: '/audio/cafe.mp3',
+        src: '/audio/normalized/cafe.mp3',
         create: (ctx, dest) => {
             // Layered filtered noise to simulate murmur
             const noise = createNoise(ctx);
@@ -231,7 +231,7 @@ const LAYERS = [
         icon: '<svg viewBox="0 0 16 16" width="16" height="16"><path d="M3 12c2-3 4-5 5-8M8 12c1-2 2-4 3-6M13 11c0-2 0-3-1-5" stroke="currentColor" stroke-width="1.2" fill="none" stroke-linecap="round"/></svg>',
         category: 'nature',
         type: 'sample',
-        src: '/audio/crickets.mp3',
+        src: '/audio/normalized/crickets.mp3',
         create: (ctx, dest) => {
             const gain = ctx.createGain();
             gain.gain.value = 0;
@@ -271,7 +271,7 @@ const LAYERS = [
         icon: '<svg viewBox="0 0 16 16" width="16" height="16"><path d="M1 8c2-3 4-3 6 0s4 3 6 0M1 12c2-3 4-3 6 0s4 3 6 0" stroke="currentColor" stroke-width="1.2" fill="none" stroke-linecap="round"/></svg>',
         category: 'nature',
         type: 'sample',
-        src: '/audio/waves.mp3',
+        src: '/audio/normalized/waves.mp3',
         create: (ctx, dest) => {
             const noise = createNoise(ctx);
             const filter = ctx.createBiquadFilter();
@@ -367,7 +367,7 @@ const LAYERS = [
         icon: '<svg viewBox="0 0 16 16" width="16" height="16"><rect x="3" y="2" width="10" height="10" rx="2" stroke="currentColor" stroke-width="1.2" fill="none"/><line x1="3" y1="8" x2="13" y2="8" stroke="currentColor" stroke-width="1"/><circle cx="5.5" cy="14" r="1" fill="currentColor"/><circle cx="10.5" cy="14" r="1" fill="currentColor"/></svg>',
         category: 'spaces',
         type: 'sample',
-        src: '/audio/train.mp3',
+        src: '/audio/normalized/train.mp3',
         create: (ctx, dest) => {
             // Rhythmic clacking
             const noise = createNoise(ctx);
@@ -406,7 +406,7 @@ const LAYERS = [
         icon: '<svg viewBox="0 0 16 16" width="16" height="16"><path d="M1 8c2-3 4-2 5 0M10 5c2-3 4-2 5 0M4 12c2-2 3-2 4 0" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>',
         category: 'nature',
         type: 'sample',
-        src: '/audio/birds.mp3',
+        src: '/audio/normalized/birds.mp3',
         create: (ctx, dest) => {
             const gain = ctx.createGain();
             gain.gain.value = 0;
@@ -447,7 +447,7 @@ const LAYERS = [
         icon: '<svg viewBox="0 0 16 16" width="16" height="16"><path d="M3 13C3 7 8 2 14 2c0 6-5 11-11 11zM3 13c3-3 6-5 11-11" stroke="currentColor" stroke-width="1.2" fill="none" stroke-linecap="round"/></svg>',
         category: 'nature',
         type: 'sample',
-        src: '/audio/leaves.mp3',
+        src: '/audio/normalized/leaves.mp3',
         create: (ctx, dest) => {
             const noise = createNoise(ctx);
             const filter = ctx.createBiquadFilter();
