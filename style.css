@@ -16,6 +16,10 @@
     --border: rgba(255, 255, 255, 0.07);
 }
 
+html {
+    overflow-x: hidden;
+}
+
 body {
     background: var(--bg);
     color: var(--text);
@@ -651,6 +655,10 @@ body {
 
 /* Responsive */
 @media (max-width: 600px) {
+    .app {
+        padding: 40px 16px;
+    }
+
     .logo {
         font-size: 28px;
         letter-spacing: 8px;
