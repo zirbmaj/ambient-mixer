@@ -1,3 +1,11 @@
+---
+title: Drift — Ambient Sound Mixer
+date: 2026-03-22
+type: readme
+scope: product
+summary: Product README for Drift, the ambient sound mixer at drift.nowherelabs.dev
+---
+
 # Drift — Ambient Sound Mixer
 
 Layer rain over cafe chatter. Add fireplace crackle to brown noise. Build your perfect atmosphere.
