@@ -87,45 +87,6 @@
             transform: translateY(-2px);
             box-shadow: 0 0 50px var(--accent-glow);
         }
-        .hero-actions {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-        .try-btn {
-            background: rgba(122, 138, 106, 0.1);
-            border: 1px solid rgba(122, 138, 106, 0.3);
-            color: var(--text);
-            font-family: 'Space Mono', monospace;
-            font-size: 12px;
-            letter-spacing: 2px;
-            padding: 14px 28px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        .try-btn:hover {
-            background: rgba(122, 138, 106, 0.15);
-            border-color: var(--accent);
-            color: var(--text);
-            box-shadow: 0 0 12px var(--accent-glow);
-        }
-        .try-btn.playing {
-            border-color: var(--accent);
-            color: var(--accent);
-            box-shadow: 0 0 15px var(--accent-glow);
-        }
-        .hero.previewing {
-            background: radial-gradient(ellipse at 50% 60%, rgba(122, 138, 106, 0.06) 0%, transparent 70%);
-        }
-        .hero.previewing .hero-logo {
-            text-shadow: 0 0 80px var(--accent-glow), 0 0 200px rgba(122, 138, 106, 0.1);
-            animation: breathe 4s ease-in-out infinite;
-        }
-        @keyframes breathe {
-            0%, 100% { opacity: 0.9; }
-            50% { opacity: 1; }
-        }
         .social-proof {
             font-family: 'Space Mono', monospace;
             font-size: 11px;
@@ -323,9 +284,7 @@
             .hero-logo { font-size: 48px; letter-spacing: 12px; }
             .hero-tagline { font-size: 16px; max-width: 340px; }
             .hero-wave { opacity: 0.4; }
-            .hero-actions { flex-direction: column; gap: 12px; }
             .cta-btn { width: 100%; max-width: 280px; text-align: center; }
-            .try-btn { width: 100%; max-width: 280px; }
             .features-grid { grid-template-columns: 1fr; gap: 16px; }
             .preset-grid { grid-template-columns: 1fr; gap: 12px; }
             .sound-tags { gap: 8px; }
@@ -357,10 +316,7 @@
         <h1 class="hero-logo">DRIFT</h1>
         <p class="hero-tagline">Layer rain over cafe chatter. Add fireplace crackle to brown noise. Build your perfect soundscape in seconds. Free, forever.</p>
         <p class="trust-signal">No account needed. Works in your browser. Free forever.</p>
-        <div class="hero-actions">
-            <a href="app.html" class="cta-btn" data-nwl-track="cta_click" data-nwl-label="start mixing hero">Start Mixing</a>
-            <button class="try-btn" id="try-btn" onclick="togglePreview()" data-nwl-track="preview_click">▶ Preview</button>
-        </div>
+        <a href="app.html" class="cta-btn" data-nwl-track="cta_click" data-nwl-label="start mixing hero">Start Mixing</a>
         <p class="quick-starts-label">or jump straight in</p>
         <div class="quick-starts">
             <a class="quick-start" href="app.html?mix=eyJyYWluIjo2MCwiY2FmZSI6NDUsInZpbnlsIjoyMH0=" data-nwl-track="quickstart_click" data-nwl-label="rainy cafe">🌧 rainy cafe</a>
@@ -455,58 +411,11 @@
     </footer>
 
     <script>
-    // Mini preview — rainy cafe mix on the landing page
-    let previewCtx = null;
-    let previewPlaying = false;
-    let previewNodes = [];
-
-    function togglePreview() {
-        const btn = document.getElementById('try-btn');
-        if (previewPlaying) {
-            previewNodes.forEach(n => { try { n.pause(); n.currentTime = 0; } catch(e) { try { n.stop(); } catch(e2) {} } });
-            previewNodes = [];
-            previewPlaying = false;
-            btn.textContent = '▶ Preview';
-            btn.classList.remove('playing');
-            document.querySelector('.hero').classList.remove('previewing');
-            return;
-        }
-        if (!previewCtx) previewCtx = new (window.AudioContext || window.webkitAudioContext)();
-        if (previewCtx.state === 'suspended') previewCtx.resume();
-
-        // Use real audio samples for a true preview
-        const rain = new Audio('audio/normalized/rain.mp3');
-        rain.loop = true;
-        rain.volume = 0.5;
-        const cafe = new Audio('audio/normalized/cafe.mp3');
-        cafe.loop = true;
-        cafe.volume = 0.3;
-
-        // Fade in
-        rain.volume = 0;
-        cafe.volume = 0;
-        rain.play().catch(() => {});
-        cafe.play().catch(() => {});
-        let fadeIn = setInterval(() => {
-            if (rain.volume < 0.5) rain.volume = Math.min(rain.volume + 0.05, 0.5);
-            if (cafe.volume < 0.3) cafe.volume = Math.min(cafe.volume + 0.03, 0.3);
-            if (rain.volume >= 0.5 && cafe.volume >= 0.3) clearInterval(fadeIn);
-        }, 100);
-
-        previewNodes = [rain, cafe];
-        previewPlaying = true;
-        btn.textContent = '⏸ Preview';
-        btn.classList.add('playing');
-        document.querySelector('.hero').classList.add('previewing');
-    }
-
-    // Funnel tracking — tag CTA clicks with preview state
-    // Lets us query: "do users who preview convert at higher rates?"
+    // Funnel tracking — tag CTA clicks
     document.addEventListener('click', (e) => {
         const cta = e.target.closest('[data-nwl-track="cta_click"], [data-nwl-track="quickstart_click"]');
         if (cta && window.nwlTrack) {
             window.nwlTrack('landing_conversion', {
-                previewed: previewPlaying || document.querySelector('.hero.previewing') !== null,
                 via: cta.dataset.nwlTrack,
                 label: cta.dataset.nwlLabel || cta.textContent.trim().slice(0, 50),
                 time_on_page_ms: Date.now() - (performance.timeOrigin || performance.timing.navigationStart),
