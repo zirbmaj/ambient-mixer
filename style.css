@@ -431,7 +431,8 @@ body {
     font-family: 'Space Mono', monospace;
     font-size: 10px;
     letter-spacing: 1px;
-    padding: 8px 14px;
+    padding: 12px 18px;
+    min-height: 44px;
     border-radius: 6px;
     cursor: pointer;
     transition: all 0.2s;
