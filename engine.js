@@ -985,6 +985,7 @@ function togglePlayback() {
     }
 
     document.getElementById('toggle-icon').textContent = isPlaying ? '⏸' : '▶';
+    document.getElementById('master-toggle').setAttribute('aria-label', isPlaying ? 'Pause all layers' : 'Play all layers');
 }
 
 // Top layers shown by default (from analytics data)
@@ -1077,12 +1078,12 @@ function buildLayerCard(layer, parent) {
     card.className = 'layer-card';
     card.id = `layer-${layer.id}`;
     card.innerHTML = `
-        <div class="layer-icon" title="Click to mute/unmute">${layer.icon}</div>
+        <div class="layer-icon" title="Click to mute/unmute" role="button" tabindex="0" aria-label="Toggle ${layer.name}">${layer.icon}</div>
         <div class="layer-name">${layer.name}</div>
         <div class="slider-container">
-            <canvas class="wave-canvas" width="200" height="32"></canvas>
+            <canvas class="wave-canvas" width="200" height="32" aria-hidden="true"></canvas>
             <input type="range" class="layer-slider" id="slider-${layer.id}"
-                min="0" max="100" value="0" />
+                min="0" max="100" value="0" aria-label="${layer.name} volume" />
         </div>
         <div class="layer-val" id="val-${layer.id}">0%</div>
     `;
@@ -1091,8 +1092,7 @@ function buildLayerCard(layer, parent) {
     let savedVolume = 0;
     const icon = card.querySelector('.layer-icon');
     icon.style.cursor = 'pointer';
-    icon.addEventListener('click', (e) => {
-        e.stopPropagation();
+    function toggleMute() {
         const slider = card.querySelector('.layer-slider');
         const current = parseInt(slider.value);
         if (current > 0) {
@@ -1106,7 +1106,9 @@ function buildLayerCard(layer, parent) {
             card.classList.remove('muted');
         }
         uiTick();
-    });
+    }
+    icon.addEventListener('click', (e) => { e.stopPropagation(); toggleMute(); });
+    icon.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleMute(); } });
 
     // Animate waveform (real audio data when available, fallback to synthetic)
     const canvas = card.querySelector('.wave-canvas');
@@ -1617,6 +1619,7 @@ const mobileOverlay = document.getElementById('mobile-start');
 if (mobileOverlay) {
     mobileOverlay.addEventListener('touchend', unlockAudio);
     mobileOverlay.addEventListener('click', unlockAudio);
+    mobileOverlay.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); unlockAudio(); } });
 }
 
 function unlockAudio() {

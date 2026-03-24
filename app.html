@@ -24,9 +24,10 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <canvas id="viz-canvas"></canvas>
+    <a href="#mixer-grid" class="skip-link">Skip to mixer</a>
+    <canvas id="viz-canvas" aria-hidden="true"></canvas>
 
-    <div class="mobile-start-overlay" id="mobile-start">
+    <div class="mobile-start-overlay" id="mobile-start" role="button" tabindex="0" aria-label="Tap to begin mixing ambient sounds">
         <div class="start-content">
             <h1 class="start-logo">DRIFT</h1>
             <p class="start-subtitle">ambient sound mixer</p>
@@ -41,7 +42,7 @@
             <p class="tagline">ambient sound mixer</p>
         </header>
 
-        <div class="now-playing-bar" id="now-playing-bar">
+        <div class="now-playing-bar" id="now-playing-bar" role="status" aria-live="polite">
             <span class="np-label">playing:</span>
             <span class="np-layers" id="np-layers">slide any layer to begin. or try a mix below.</span>
         </div>
@@ -51,12 +52,12 @@
         </div>
 
         <div class="controls-bar">
-            <button class="master-toggle" id="master-toggle" title="Play/Pause all">
-                <span id="toggle-icon">▶</span>
+            <button class="master-toggle" id="master-toggle" title="Play/Pause all" aria-label="Play all layers">
+                <span id="toggle-icon" aria-hidden="true">▶</span>
             </button>
             <div class="master-volume">
-                <label class="vol-label">MASTER</label>
-                <input type="range" id="master-volume" min="0" max="100" value="70" class="vol-slider">
+                <label class="vol-label" for="master-volume">MASTER</label>
+                <input type="range" id="master-volume" min="0" max="100" value="70" class="vol-slider" aria-label="Master volume">
             </div>
             <div class="preset-controls">
                 <button class="preset-btn" id="save-preset" title="Save mix" data-nwl-track="save_mix">Save Mix</button>
