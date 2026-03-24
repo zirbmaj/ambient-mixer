@@ -544,7 +544,8 @@
                 const weatherLine = document.createElement('p');
                 weatherLine.className = 'social-proof visible';
                 weatherLine.style.marginTop = '8px';
-                weatherLine.innerHTML = `it's ${data.weather}ing where you are · <a href="app.html?mix=${match.mix}" style="color:var(--accent);text-decoration:none">try ${match.name}</a>`;
+                const verb = data.weather === 'fog' ? 'foggy' : data.weather + 'ing';
+                weatherLine.innerHTML = `it's ${verb} where you are · <a href="app.html?mix=${match.mix}" style="color:var(--accent);text-decoration:none">try ${match.name}</a>`;
                 el.parentNode.insertBefore(weatherLine, el.nextSibling);
                 localStorage.setItem('drift_weather_shown', 'true');
             }
