@@ -452,10 +452,10 @@
         if (previewCtx.state === 'suspended') previewCtx.resume();
 
         // Use real audio samples for a true preview
-        const rain = new Audio('audio/rain.mp3');
+        const rain = new Audio('audio/normalized/rain.mp3');
         rain.loop = true;
         rain.volume = 0.5;
-        const cafe = new Audio('audio/cafe.mp3');
+        const cafe = new Audio('audio/normalized/cafe.mp3');
         cafe.loop = true;
         cafe.volume = 0.3;
 
@@ -476,6 +476,20 @@
         btn.classList.add('playing');
         document.querySelector('.hero').classList.add('previewing');
     }
+
+    // Funnel tracking — tag CTA clicks with preview state
+    // Lets us query: "do users who preview convert at higher rates?"
+    document.addEventListener('click', (e) => {
+        const cta = e.target.closest('[data-nwl-track="cta_click"], [data-nwl-track="quickstart_click"]');
+        if (cta && window.nwlTrack) {
+            window.nwlTrack('landing_conversion', {
+                previewed: previewPlaying || document.querySelector('.hero.previewing') !== null,
+                via: cta.dataset.nwlTrack,
+                label: cta.dataset.nwlLabel || cta.textContent.trim().slice(0, 50),
+                time_on_page_ms: Date.now() - performance.timing.navigationStart,
+            });
+        }
+    });
     </script>
     <script>
     // Social proof — how many people mixed today
