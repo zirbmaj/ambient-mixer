@@ -486,7 +486,7 @@
                 previewed: previewPlaying || document.querySelector('.hero.previewing') !== null,
                 via: cta.dataset.nwlTrack,
                 label: cta.dataset.nwlLabel || cta.textContent.trim().slice(0, 50),
-                time_on_page_ms: Date.now() - performance.timing.navigationStart,
+                time_on_page_ms: Date.now() - (performance.timeOrigin || performance.timing.navigationStart),
             });
         }
     });
