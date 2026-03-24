@@ -378,9 +378,9 @@ body {
 
 .vol-label {
     font-family: 'Space Mono', monospace;
-    font-size: 9px;
+    font-size: 10px;
     letter-spacing: 3px;
-    color: var(--text-dim);
+    color: var(--text-secondary);
     white-space: nowrap;
 }
 
@@ -388,8 +388,8 @@ body {
     -webkit-appearance: none;
     appearance: none;
     width: 100%;
-    height: 3px;
-    background: rgba(255, 255, 255, 0.06);
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
     border-radius: 2px;
     outline: none;
     cursor: pointer;
@@ -398,20 +398,22 @@ body {
 .vol-slider::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
-    width: 12px;
-    height: 12px;
+    width: 16px;
+    height: 16px;
     border-radius: 50%;
     background: var(--accent);
     cursor: pointer;
+    box-shadow: 0 0 6px var(--accent-glow);
 }
 
 .vol-slider::-moz-range-thumb {
-    width: 12px;
-    height: 12px;
+    width: 16px;
+    height: 16px;
     border-radius: 50%;
     background: var(--accent);
     cursor: pointer;
     border: none;
+    box-shadow: 0 0 6px var(--accent-glow);
 }
 
 .preset-controls {
