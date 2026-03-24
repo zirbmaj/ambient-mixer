@@ -892,8 +892,21 @@ function setLayerVolume(layerId, vol) {
         if (state.gain) {
             state.gain.gain.cancelScheduledValues(audioCtx.currentTime);
             state.gain.gain.setValueAtTime(0, audioCtx.currentTime);
+            // Disconnect gain from output to kill LFO bleed-through —
+            // cancelScheduledValues only stops automation, not audio-rate
+            // connections (LFO → gain.gain). Disconnecting is bulletproof.
+            if (state.analyser) {
+                state.gain.disconnect();
+                state._disconnected = true;
+            }
         }
         return;
+    }
+
+    // Reconnect gain node if it was disconnected at zero
+    if (state._disconnected && state.gain && state.analyser) {
+        state.gain.connect(state.analyser);
+        state._disconnected = false;
     }
 
     // Set volume based on layer type
