@@ -1,6 +1,6 @@
 ---
 name: drift
-description: Ambient sound mixer - 17 layers of real audio + synthesis
+description: Ambient sound mixer - 18 layers of real audio + synthesis
 url: https://drift.nowherelabs.dev
 repo: github.com/zirbmaj/ambient-mixer
 type: static-site
@@ -37,7 +37,7 @@ Playwright suite covers all Nowhere Labs products including Drift.
 
 | File | Purpose |
 |------|---------|
-| `engine.js` | Audio engine — 17 layers, Web Audio API synthesis + sample playback |
+| `engine.js` | Audio engine — 18 layers, Web Audio API synthesis + sample playback |
 | `index.html` | Landing page (SEO, marketing, hero) |
 | `app.html` | Main mixer app UI |
 | `style.css` | All styles |
@@ -61,7 +61,7 @@ Playwright suite covers all Nowhere Labs products including Drift.
 
 ## Layers
 
-17 sound layers across categories:
+18 sound layers across categories:
 
 - **Weather**: rain, heavy-rain, thunder, wind, snow
 - **Nature**: fire, waves, crickets, birds, leaves
