@@ -348,7 +348,7 @@
     </section>
 
     <section class="sounds-section">
-        <h2 class="section-title">17 Ambient Layers</h2>
+        <h2 class="section-title">18 Ambient Layers</h2>
         <div class="sound-tags">
             <span class="sound-tag">🌧 Rain</span>
             <span class="sound-tag">⛆ Heavy Rain</span>
@@ -363,6 +363,7 @@
             <span class="sound-tag">🏖 Ocean Waves</span>
             <span class="sound-tag">🐦 Forest Birds</span>
             <span class="sound-tag">🍃 Leaves</span>
+            <span class="sound-tag">⌨ Keyboard Typing</span>
             <span class="sound-tag">🎵 Deep Drone</span>
             <span class="sound-tag">🟤 Brown Noise</span>
             <span class="sound-tag">⬜ White Noise</span>
@@ -438,13 +439,13 @@
             if (count > 0) {
                 el.textContent = `${count} ${count === 1 ? 'person' : 'people'} mixed today`;
             } else {
-                el.textContent = '17 layers to mix. zero signup required.';
+                el.textContent = '18 layers to mix. zero signup required.';
             }
             setTimeout(() => el.classList.add('visible'), 500);
         })
         .catch(() => {
             const el = document.getElementById('social-proof');
-            el.textContent = '17 layers to mix. zero signup required.';
+            el.textContent = '18 layers to mix. zero signup required.';
             setTimeout(() => el.classList.add('visible'), 500);
         });
     })();

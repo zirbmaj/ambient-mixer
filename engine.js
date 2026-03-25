@@ -471,6 +471,28 @@ const LAYERS = [
         }
     },
     {
+        id: 'keyboard',
+        name: 'Keyboard Typing',
+        icon: '<svg viewBox="0 0 16 16" width="16" height="16"><rect x="1" y="6" width="14" height="7" rx="1.5" stroke="currentColor" stroke-width="1.2" fill="none"/><line x1="4" y1="8.5" x2="6" y2="8.5" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="7" y1="8.5" x2="9" y2="8.5" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="10" y1="8.5" x2="12" y2="8.5" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="5" y1="10.5" x2="11" y2="10.5" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>',
+        category: 'texture',
+        type: 'sample',
+        src: '/audio/seamless/keyboard.mp3',
+        create: (ctx, dest) => {
+            const noise = createNoise(ctx);
+            const filter = ctx.createBiquadFilter();
+            filter.type = 'bandpass';
+            filter.frequency.value = 2000;
+            filter.Q.value = 0.6;
+            const gain = ctx.createGain();
+            gain.gain.value = 0;
+            noise.connect(filter);
+            filter.connect(gain);
+            gain.connect(dest);
+            noise.start();
+            return { source: noise, gain, extras: [] };
+        }
+    },
+    {
         id: 'snow',
         name: 'Snow Silence',
         icon: '<svg viewBox="0 0 16 16" width="16" height="16"><circle cx="4" cy="4" r="1.2" fill="currentColor" opacity="0.5"/><circle cx="11" cy="6" r="1" fill="currentColor" opacity="0.4"/><circle cx="7" cy="10" r="1.2" fill="currentColor" opacity="0.6"/><circle cx="13" cy="12" r="0.8" fill="currentColor" opacity="0.3"/></svg>',
@@ -1198,7 +1220,7 @@ function buildMixer() {
     toggle.className = 'show-all-btn';
     toggle.id = 'show-all-btn';
     if (showAllLayers) toggle.style.display = 'none';
-    toggle.textContent = 'show all 17 layers';
+    toggle.textContent = 'show all 18 layers';
     toggle.addEventListener('click', () => {
         showAllLayers = !showAllLayers;
         localStorage.setItem('drift_show_all', showAllLayers);
@@ -1214,7 +1236,7 @@ function buildMixer() {
                 }
             });
             document.querySelectorAll('.cat-header').forEach(el => el.style.display = 'none');
-            toggle.textContent = 'show all 17 layers';
+            toggle.textContent = 'show all 18 layers';
         }
     });
     grid.appendChild(toggle);
