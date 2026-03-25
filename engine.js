@@ -493,6 +493,94 @@ const LAYERS = [
         }
     },
     {
+        id: 'creek',
+        name: 'Creek',
+        icon: '<svg viewBox="0 0 16 16" width="16" height="16"><path d="M2 8c2-2 4 2 6 0s4 2 6 0" stroke="currentColor" stroke-width="1.2" fill="none" stroke-linecap="round"/><path d="M2 11c2-2 4 2 6 0s4 2 6 0" stroke="currentColor" stroke-width="1.2" fill="none" stroke-linecap="round" opacity="0.5"/></svg>',
+        category: 'nature',
+        type: 'sample',
+        src: '/audio/seamless/creek.mp3',
+        create: (ctx, dest) => {
+            const noise = createNoise(ctx);
+            const filter = ctx.createBiquadFilter();
+            filter.type = 'bandpass';
+            filter.frequency.value = 3000;
+            filter.Q.value = 0.5;
+            const gain = ctx.createGain();
+            gain.gain.value = 0;
+            noise.connect(filter);
+            filter.connect(gain);
+            gain.connect(dest);
+            noise.start();
+            return { source: noise, gain, extras: [] };
+        }
+    },
+    {
+        id: 'wind-chimes',
+        name: 'Wind Chimes',
+        icon: '<svg viewBox="0 0 16 16" width="16" height="16"><line x1="8" y1="1" x2="8" y2="5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><line x1="4" y1="5" x2="4" y2="11" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="8" y1="5" x2="8" y2="13" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="12" y1="5" x2="12" y2="10" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="3" y1="5" x2="13" y2="5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>',
+        category: 'texture',
+        type: 'sample',
+        src: '/audio/seamless/wind-chimes.mp3',
+        create: (ctx, dest) => {
+            const noise = createNoise(ctx);
+            const filter = ctx.createBiquadFilter();
+            filter.type = 'bandpass';
+            filter.frequency.value = 4000;
+            filter.Q.value = 0.4;
+            const gain = ctx.createGain();
+            gain.gain.value = 0;
+            noise.connect(filter);
+            filter.connect(gain);
+            gain.connect(dest);
+            noise.start();
+            return { source: noise, gain, extras: [] };
+        }
+    },
+    {
+        id: 'gentle-thunder',
+        name: 'Gentle Thunder',
+        icon: '<svg viewBox="0 0 16 16" width="16" height="16"><path d="M3 7c0-3 2-5 5-5s5 2 5 5" stroke="currentColor" stroke-width="1.2" fill="none" stroke-linecap="round" opacity="0.5"/><path d="M8 8l-1 3h2l-1 3" stroke="currentColor" stroke-width="1.2" fill="none" stroke-linecap="round" opacity="0.4"/></svg>',
+        category: 'weather',
+        type: 'sample',
+        src: '/audio/seamless/gentle-thunder.mp3',
+        create: (ctx, dest) => {
+            const noise = createNoise(ctx);
+            const filter = ctx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.value = 80;
+            filter.Q.value = 0.3;
+            const gain = ctx.createGain();
+            gain.gain.value = 0;
+            noise.connect(filter);
+            filter.connect(gain);
+            gain.connect(dest);
+            noise.start();
+            return { source: noise, gain, extras: [] };
+        }
+    },
+    {
+        id: 'distant-traffic',
+        name: 'Distant Traffic',
+        icon: '<svg viewBox="0 0 16 16" width="16" height="16"><rect x="2" y="7" width="5" height="4" rx="1" stroke="currentColor" stroke-width="1" fill="none"/><rect x="9" y="8" width="4" height="3" rx="1" stroke="currentColor" stroke-width="1" fill="none"/><line x1="0" y1="12" x2="16" y2="12" stroke="currentColor" stroke-width="1.2" opacity="0.3"/></svg>',
+        category: 'texture',
+        type: 'sample',
+        src: '/audio/seamless/distant-traffic.mp3',
+        create: (ctx, dest) => {
+            const noise = createNoise(ctx);
+            const filter = ctx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.value = 300;
+            filter.Q.value = 0.5;
+            const gain = ctx.createGain();
+            gain.gain.value = 0;
+            noise.connect(filter);
+            filter.connect(gain);
+            gain.connect(dest);
+            noise.start();
+            return { source: noise, gain, extras: [] };
+        }
+    },
+    {
         id: 'snow',
         name: 'Snow Silence',
         icon: '<svg viewBox="0 0 16 16" width="16" height="16"><circle cx="4" cy="4" r="1.2" fill="currentColor" opacity="0.5"/><circle cx="11" cy="6" r="1" fill="currentColor" opacity="0.4"/><circle cx="7" cy="10" r="1.2" fill="currentColor" opacity="0.6"/><circle cx="13" cy="12" r="0.8" fill="currentColor" opacity="0.3"/></svg>',
@@ -1220,7 +1308,7 @@ function buildMixer() {
     toggle.className = 'show-all-btn';
     toggle.id = 'show-all-btn';
     if (showAllLayers) toggle.style.display = 'none';
-    toggle.textContent = 'show all 18 layers';
+    toggle.textContent = 'show all 22 layers';
     toggle.addEventListener('click', () => {
         showAllLayers = !showAllLayers;
         localStorage.setItem('drift_show_all', showAllLayers);
@@ -1236,7 +1324,7 @@ function buildMixer() {
                 }
             });
             document.querySelectorAll('.cat-header').forEach(el => el.style.display = 'none');
-            toggle.textContent = 'show all 18 layers';
+            toggle.textContent = 'show all 22 layers';
         }
     });
     grid.appendChild(toggle);

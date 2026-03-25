@@ -133,6 +133,11 @@
             <p class="discover-subtitle">mixes published by the drift community</p>
         </div>
 
+        <div class="staff-picks" id="staff-picks" style="margin-bottom: 32px; display: none;">
+            <h2 style="font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: 4px; color: var(--accent); margin-bottom: 12px; text-transform: uppercase;">staff picks</h2>
+            <div class="mix-grid" id="staff-grid"></div>
+        </div>
+
         <div class="sort-bar">
             <span class="mix-count" id="mix-count"></span>
             <div class="sort-toggle">
@@ -164,14 +169,62 @@
 
     async function loadMixes() {
         try {
-            const res = await fetch(`${SB_URL}/rest/v1/published_mixes?order=created_at.desc&limit=50`, {
+            const res = await fetch(`${SB_URL}/rest/v1/published_mixes?select=*&order=created_at.desc&limit=50`, {
                 headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}` }
             });
-            allMixes = await res.json();
+            const all = await res.json();
+
+            // Separate staff picks from community mixes
+            const staffPicks = all.filter(m => m.staff_pick);
+            allMixes = all.filter(m => !m.staff_pick);
+
+            if (staffPicks.length > 0) {
+                renderStaffPicks(staffPicks);
+            }
             renderMixes();
         } catch(e) {
             console.warn('Failed to load mixes:', e);
         }
+    }
+
+    function renderStaffPicks(picks) {
+        const container = document.getElementById('staff-picks');
+        const grid = document.getElementById('staff-grid');
+        container.style.display = 'block';
+        grid.innerHTML = '';
+
+        const ALL_LAYERS = ['rain','heavy-rain','thunder','wind','fire','vinyl','cafe','crickets','waves','drone','brown-noise','white-noise','train','birds','leaves','snow','binaural','keyboard','creek','wind-chimes','gentle-thunder','distant-traffic'];
+
+        picks.forEach(mix => {
+            const layers = Object.keys(mix.levels).join(' + ');
+            const encoded = btoa(JSON.stringify(mix.levels));
+            const fpDots = ALL_LAYERS.map(id => {
+                const vol = mix.levels[id] || 0;
+                if (vol === 0) return '<div class="fp-dot off"></div>';
+                const h = 2 + (vol / 100) * 10;
+                const o = 0.3 + (vol / 100) * 0.7;
+                return `<div class="fp-dot" style="height:${h}px;opacity:${o}"></div>`;
+            }).join('');
+
+            const card = document.createElement('a');
+            card.className = 'mix-card';
+            card.href = `app.html?mix=${encoded}`;
+            card.style.borderColor = 'rgba(122, 138, 106, 0.2)';
+            card.innerHTML = `
+                <div class="mix-card-name">${mix.name}</div>
+                <div class="mix-fingerprint">${fpDots}</div>
+                <div class="mix-card-layers">${layers}</div>
+                <div class="mix-card-meta"><span>${mix.plays > 0 ? `${mix.plays} plays` : 'new'}</span></div>
+            `;
+            card.addEventListener('click', () => {
+                fetch(`${SB_URL}/rest/v1/rpc/increment_plays`, {
+                    method: 'POST',
+                    headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ mix_id: mix.id }),
+                }).catch(() => {});
+            });
+            grid.appendChild(card);
+        });
     }
 
     function renderMixes() {
@@ -187,7 +240,7 @@
         document.getElementById('mix-count').textContent = `${mixes.length} mixes`;
         grid.innerHTML = '';
 
-        const ALL_LAYERS = ['rain','heavy-rain','thunder','wind','fire','vinyl','cafe','crickets','waves','drone','brown-noise','white-noise','train','birds','leaves','snow','binaural'];
+        const ALL_LAYERS = ['rain','heavy-rain','thunder','wind','fire','vinyl','cafe','crickets','waves','drone','brown-noise','white-noise','train','birds','leaves','snow','binaural','keyboard','creek','wind-chimes','gentle-thunder','distant-traffic'];
 
         mixes.forEach(mix => {
                 const layers = Object.keys(mix.levels).join(' + ');
