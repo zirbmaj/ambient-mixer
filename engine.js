@@ -471,6 +471,116 @@ const LAYERS = [
         }
     },
     {
+        id: 'keyboard',
+        name: 'Keyboard Typing',
+        icon: '<svg viewBox="0 0 16 16" width="16" height="16"><rect x="1" y="6" width="14" height="7" rx="1.5" stroke="currentColor" stroke-width="1.2" fill="none"/><line x1="4" y1="8.5" x2="6" y2="8.5" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="7" y1="8.5" x2="9" y2="8.5" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="10" y1="8.5" x2="12" y2="8.5" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="5" y1="10.5" x2="11" y2="10.5" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>',
+        category: 'texture',
+        type: 'sample',
+        src: '/audio/seamless/keyboard.mp3',
+        create: (ctx, dest) => {
+            const noise = createNoise(ctx);
+            const filter = ctx.createBiquadFilter();
+            filter.type = 'bandpass';
+            filter.frequency.value = 2000;
+            filter.Q.value = 0.6;
+            const gain = ctx.createGain();
+            gain.gain.value = 0;
+            noise.connect(filter);
+            filter.connect(gain);
+            gain.connect(dest);
+            noise.start();
+            return { source: noise, gain, extras: [] };
+        }
+    },
+    {
+        id: 'creek',
+        name: 'Creek',
+        icon: '<svg viewBox="0 0 16 16" width="16" height="16"><path d="M2 8c2-2 4 2 6 0s4 2 6 0" stroke="currentColor" stroke-width="1.2" fill="none" stroke-linecap="round"/><path d="M2 11c2-2 4 2 6 0s4 2 6 0" stroke="currentColor" stroke-width="1.2" fill="none" stroke-linecap="round" opacity="0.5"/></svg>',
+        category: 'nature',
+        type: 'sample',
+        src: '/audio/seamless/creek.mp3',
+        create: (ctx, dest) => {
+            const noise = createNoise(ctx);
+            const filter = ctx.createBiquadFilter();
+            filter.type = 'bandpass';
+            filter.frequency.value = 3000;
+            filter.Q.value = 0.5;
+            const gain = ctx.createGain();
+            gain.gain.value = 0;
+            noise.connect(filter);
+            filter.connect(gain);
+            gain.connect(dest);
+            noise.start();
+            return { source: noise, gain, extras: [] };
+        }
+    },
+    {
+        id: 'wind-chimes',
+        name: 'Wind Chimes',
+        icon: '<svg viewBox="0 0 16 16" width="16" height="16"><line x1="8" y1="1" x2="8" y2="5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><line x1="4" y1="5" x2="4" y2="11" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="8" y1="5" x2="8" y2="13" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="12" y1="5" x2="12" y2="10" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="3" y1="5" x2="13" y2="5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>',
+        category: 'texture',
+        type: 'sample',
+        src: '/audio/seamless/wind-chimes.mp3',
+        create: (ctx, dest) => {
+            const noise = createNoise(ctx);
+            const filter = ctx.createBiquadFilter();
+            filter.type = 'bandpass';
+            filter.frequency.value = 4000;
+            filter.Q.value = 0.4;
+            const gain = ctx.createGain();
+            gain.gain.value = 0;
+            noise.connect(filter);
+            filter.connect(gain);
+            gain.connect(dest);
+            noise.start();
+            return { source: noise, gain, extras: [] };
+        }
+    },
+    {
+        id: 'gentle-thunder',
+        name: 'Gentle Thunder',
+        icon: '<svg viewBox="0 0 16 16" width="16" height="16"><path d="M3 7c0-3 2-5 5-5s5 2 5 5" stroke="currentColor" stroke-width="1.2" fill="none" stroke-linecap="round" opacity="0.5"/><path d="M8 8l-1 3h2l-1 3" stroke="currentColor" stroke-width="1.2" fill="none" stroke-linecap="round" opacity="0.4"/></svg>',
+        category: 'weather',
+        type: 'sample',
+        src: '/audio/seamless/gentle-thunder.mp3',
+        create: (ctx, dest) => {
+            const noise = createNoise(ctx);
+            const filter = ctx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.value = 80;
+            filter.Q.value = 0.3;
+            const gain = ctx.createGain();
+            gain.gain.value = 0;
+            noise.connect(filter);
+            filter.connect(gain);
+            gain.connect(dest);
+            noise.start();
+            return { source: noise, gain, extras: [] };
+        }
+    },
+    {
+        id: 'distant-traffic',
+        name: 'Distant Traffic',
+        icon: '<svg viewBox="0 0 16 16" width="16" height="16"><rect x="2" y="7" width="5" height="4" rx="1" stroke="currentColor" stroke-width="1" fill="none"/><rect x="9" y="8" width="4" height="3" rx="1" stroke="currentColor" stroke-width="1" fill="none"/><line x1="0" y1="12" x2="16" y2="12" stroke="currentColor" stroke-width="1.2" opacity="0.3"/></svg>',
+        category: 'texture',
+        type: 'sample',
+        src: '/audio/seamless/distant-traffic.mp3',
+        create: (ctx, dest) => {
+            const noise = createNoise(ctx);
+            const filter = ctx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.value = 300;
+            filter.Q.value = 0.5;
+            const gain = ctx.createGain();
+            gain.gain.value = 0;
+            noise.connect(filter);
+            filter.connect(gain);
+            gain.connect(dest);
+            noise.start();
+            return { source: noise, gain, extras: [] };
+        }
+    },
+    {
         id: 'snow',
         name: 'Snow Silence',
         icon: '<svg viewBox="0 0 16 16" width="16" height="16"><circle cx="4" cy="4" r="1.2" fill="currentColor" opacity="0.5"/><circle cx="11" cy="6" r="1" fill="currentColor" opacity="0.4"/><circle cx="7" cy="10" r="1.2" fill="currentColor" opacity="0.6"/><circle cx="13" cy="12" r="0.8" fill="currentColor" opacity="0.3"/></svg>',
@@ -1198,7 +1308,7 @@ function buildMixer() {
     toggle.className = 'show-all-btn';
     toggle.id = 'show-all-btn';
     if (showAllLayers) toggle.style.display = 'none';
-    toggle.textContent = 'show all 17 layers';
+    toggle.textContent = 'show all 22 layers';
     toggle.addEventListener('click', () => {
         showAllLayers = !showAllLayers;
         localStorage.setItem('drift_show_all', showAllLayers);
@@ -1214,7 +1324,7 @@ function buildMixer() {
                 }
             });
             document.querySelectorAll('.cat-header').forEach(el => el.style.display = 'none');
-            toggle.textContent = 'show all 17 layers';
+            toggle.textContent = 'show all 22 layers';
         }
     });
     grid.appendChild(toggle);
@@ -1523,7 +1633,7 @@ setInterval(() => {
     if (hasActive && !mixStartTime) mixStartTime = Date.now();
     if (!hasActive) { mixStartTime = null; shareNudged = false; }
 
-    if (mixStartTime && !shareNudged && Date.now() - mixStartTime > 30000) {
+    if (mixStartTime && !shareNudged && Date.now() - mixStartTime > 60000) {
         const btn = document.getElementById('share-btn');
         if (btn) {
             btn.classList.add('nudge');
@@ -1665,19 +1775,51 @@ try {
         const lastMix = getLastMix();
         const coldMix = lastMix || { rain: 60, cafe: 45, vinyl: 20 };
 
-        // Pre-load VISUALLY only (no audio until user gesture)
+        // Build cold start preview bars on the start overlay (for non-shared visitors)
+        const coldPreview = document.getElementById('cold-start-preview');
+        if (coldPreview) {
+            const mixToShow = lastMix || { rain: 60, cafe: 45, vinyl: 20 };
+            const previewLayers = Object.entries(mixToShow)
+                .map(([id, val]) => {
+                    const l = LAYERS.find(l => l.id === id);
+                    return l ? { name: l.name.toLowerCase(), level: val } : { name: id, level: val };
+                })
+                .sort((a, b) => b.level - a.level);
+
+            previewLayers.forEach(l => {
+                const row = document.createElement('div');
+                row.className = 'smp-row';
+                const label = document.createElement('span');
+                label.className = 'smp-label';
+                label.textContent = l.name;
+                const barOuter = document.createElement('div');
+                barOuter.className = 'smp-bar';
+                const barInner = document.createElement('div');
+                barInner.className = 'smp-fill';
+                barInner.style.width = l.level + '%';
+                barOuter.appendChild(barInner);
+                row.appendChild(label);
+                row.appendChild(barOuter);
+                coldPreview.appendChild(row);
+            });
+        }
+
+        // Pre-load sliders at 0 (they'll animate to target on overlay dismiss)
         Object.entries(coldMix).forEach(([id, val]) => {
             const slider = document.getElementById(`slider-${id}`);
             if (slider) {
-                slider.value = val;
+                slider.value = 0;
                 const card = document.getElementById(`layer-${id}`);
                 if (card) {
                     card.classList.add('active');
                     const valEl = card.querySelector('.layer-val');
-                    if (valEl) valEl.textContent = `${val}%`;
+                    if (valEl) valEl.textContent = '0%';
                 }
             }
         });
+
+        // Store cold mix for animated entry
+        window._coldMixTargets = coldMix;
 
         if (lastMix) {
             const layerNames = Object.keys(lastMix)
@@ -1686,37 +1828,74 @@ try {
             document.querySelector('.tagline').textContent = 'welcome back — tap to resume ' + layerNames;
             if (window.nwlTrack) window.nwlTrack('returning_user', { layers: layerNames });
         } else {
-            document.querySelector('.tagline').textContent = 'slide rain to hear it — or tap anywhere to start';
-
-            // First-visit tooltip pointing at the rain slider
-            if (!localStorage.getItem('drift_onboarded')) {
-                const rainCard = document.getElementById('layer-rain');
-                if (rainCard) {
-                    const tip = document.createElement('div');
-                    tip.style.cssText = 'position:absolute;top:-28px;left:50%;transform:translateX(-50%);font-family:"Space Mono",monospace;font-size:9px;color:rgba(122,138,106,0.8);letter-spacing:1px;white-space:nowrap;animation:tipPulse 2s ease-in-out infinite;pointer-events:none;z-index:10;';
-                    tip.textContent = '↑ slide this';
-                    rainCard.style.position = 'relative';
-                    rainCard.appendChild(tip);
-
-                    const style = document.createElement('style');
-                    style.textContent = '@keyframes tipPulse { 0%,100% { opacity:0.5; } 50% { opacity:1; } }';
-                    document.head.appendChild(style);
-
-                    const clearTip = () => {
-                        tip.remove();
-                        style.remove();
-                        localStorage.setItem('drift_onboarded', 'true');
-                        document.removeEventListener('input', clearTip);
-                    };
-                    document.addEventListener('input', clearTip);
-                    setTimeout(() => { if (tip.parentNode) { tip.remove(); style.remove(); } }, 10000);
-                }
-            }
+            document.querySelector('.tagline').textContent = 'design your soundscape';
         }
 
-        // On first interaction, load the mix properly with audio
+        // On first interaction, animate sliders AND audio together from 0 to target
         document.addEventListener('click', function coldStartPlay() {
-            loadPreset(coldMix);
+            // Init audio + playback at 0 volume (no audible jump)
+            const zeroMix = {};
+            Object.keys(coldMix).forEach(id => { zeroMix[id] = 0; });
+            loadPreset(zeroMix);
+
+            // Animate both visual sliders and audio volume over 1.5s
+            Object.entries(coldMix).forEach(([id, val]) => {
+                const slider = document.getElementById(`slider-${id}`);
+                const card = document.getElementById(`layer-${id}`);
+                if (slider && card) {
+                    let start = null;
+                    const duration = 1500;
+                    function animateSlider(ts) {
+                        if (!start) start = ts;
+                        const progress = Math.min((ts - start) / duration, 1);
+                        const eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+                        const current = Math.round(eased * val);
+                        slider.value = current;
+                        setLayerVolume(id, current / 100); // sync audio with visual
+                        const valEl = card.querySelector('.layer-val');
+                        if (valEl) valEl.textContent = current + '%';
+                        if (progress < 1) requestAnimationFrame(animateSlider);
+                    }
+                    requestAnimationFrame(animateSlider);
+                }
+            });
+
+            // Fireplace hint — show after 3s if first visit and no interaction yet
+            if (!sessionStorage.getItem('drift_hint_shown') && !localStorage.getItem('drift_onboarded')) {
+                setTimeout(() => {
+                    // Check if user has already interacted with a slider
+                    const anyInteraction = Object.values(layerStates).some(s => s.active && s.volume > 0);
+                    if (anyInteraction && Object.keys(coldMix).every(id => layerStates[id]?.volume === coldMix[id] / 100)) {
+                        // User hasn't changed anything — show hint
+                    } else if (anyInteraction) {
+                        return; // User already exploring
+                    }
+
+                    // Find fireplace (or fallback to a visible layer)
+                    const hintTarget = document.getElementById('layer-fire') || document.getElementById('layer-rain');
+                    if (!hintTarget) return;
+
+                    const targetName = hintTarget.id === 'layer-fire' ? 'fireplace' : 'rain';
+                    const hint = document.createElement('div');
+                    hint.className = 'onboard-hint';
+                    hint.textContent = 'try adding ' + targetName + ' →';
+                    hintTarget.style.position = 'relative';
+                    hintTarget.appendChild(hint);
+                    sessionStorage.setItem('drift_hint_shown', 'true');
+
+                    // Clear on any slider interaction, scroll, or timeout
+                    const clearHint = () => {
+                        if (hint.parentNode) hint.remove();
+                        localStorage.setItem('drift_onboarded', 'true');
+                        document.removeEventListener('input', clearHint);
+                        window.removeEventListener('scroll', clearHint);
+                    };
+                    document.addEventListener('input', clearHint);
+                    window.addEventListener('scroll', clearHint);
+                    setTimeout(clearHint, 15000);
+                }, 3000);
+            }
+
             document.removeEventListener('click', coldStartPlay);
         }, { once: true });
     }
