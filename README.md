@@ -14,16 +14,16 @@ Layer rain over cafe chatter. Add fireplace crackle to brown noise. Build your p
 
 ## What is this
 
-A free web-based ambient sound mixer with 18 layers across 4 categories. Real audio samples for naturalistic sounds, Web Audio API synthesis for abstract textures. Mix anything with anything. Save your mixes. Share them with a URL.
+A free web-based ambient sound mixer with 22 layers across 4 categories. Real audio samples for naturalistic sounds, Web Audio API synthesis for abstract textures. Mix anything with anything. Save your mixes. Share them with a URL.
 
 ## Features
 
-- 18 ambient layers: rain, fire, cafe, birds, ocean, train, crickets, leaves, thunder, heavy rain, vinyl crackle, wind, snow, brown noise, white noise, deep drone, binaural beats
+- 22 ambient layers: rain, fire, cafe, birds, ocean, train, crickets, leaves, thunder, heavy rain, vinyl crackle, wind, snow, brown noise, white noise, deep drone, binaural beats, keyboard typing, creek, wind chimes, gentle thunder, distant traffic
 - Real-time waveform visualization on every slider (AnalyserNode for synthesis, animated patterns for samples)
 - One-tap save with auto-generated poetic names ("rain + fire · sunday afternoon")
 - Shareable mix URLs (base64 encoded, auto-plays on arrival)
 - Subtle UI sounds on interactions (synthesized, 5% volume)
-- Progressive disclosure: 6 featured layers by default, expand to all 18
+- Progressive disclosure: 6 featured layers by default, expand to all 22
 - Layer pairing suggestions (complementary layers glow when one is active)
 - Dark, minimal, gets out of your way
 
