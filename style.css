@@ -648,8 +648,9 @@ body {
     font-size: 10px;
     color: var(--text-secondary);
     letter-spacing: 1px;
-    min-width: 70px;
+    min-width: 80px;
     text-align: right;
+    flex-shrink: 0;
 }
 
 .smp-bar {

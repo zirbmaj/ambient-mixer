@@ -1831,17 +1831,18 @@ try {
             document.querySelector('.tagline').textContent = 'design your soundscape';
         }
 
-        // On first interaction, load the mix with animated sliders
+        // On first interaction, animate sliders AND audio together from 0 to target
         document.addEventListener('click', function coldStartPlay() {
-            loadPreset(coldMix);
+            // Init audio + playback at 0 volume (no audible jump)
+            const zeroMix = {};
+            Object.keys(coldMix).forEach(id => { zeroMix[id] = 0; });
+            loadPreset(zeroMix);
 
-            // Animate sliders from 0 to target over 1.5s
+            // Animate both visual sliders and audio volume over 1.5s
             Object.entries(coldMix).forEach(([id, val]) => {
                 const slider = document.getElementById(`slider-${id}`);
                 const card = document.getElementById(`layer-${id}`);
                 if (slider && card) {
-                    const fill = card.querySelector('.layer-slider');
-                    if (fill) fill.style.transition = 'none'; // let JS drive
                     let start = null;
                     const duration = 1500;
                     function animateSlider(ts) {
@@ -1850,6 +1851,7 @@ try {
                         const eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
                         const current = Math.round(eased * val);
                         slider.value = current;
+                        setLayerVolume(id, current / 100); // sync audio with visual
                         const valEl = card.querySelector('.layer-val');
                         if (valEl) valEl.textContent = current + '%';
                         if (progress < 1) requestAnimationFrame(animateSlider);
