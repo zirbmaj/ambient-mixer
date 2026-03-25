@@ -342,10 +342,13 @@
             timeRemaining--;
             updateDisplay();
 
-            // Fade during last 5 minutes
+            // Fade during last 5 minutes — exponential curve for natural perceived loudness
+            // Linear fade sounds abrupt at the end. Exponential matches how ears perceive volume.
             if (timeRemaining <= FADE_DURATION && timeRemaining > 0 && masterGain) {
-                const progress = timeRemaining / FADE_DURATION;
-                masterGain.gain.value = 0.7 * progress;
+                const progress = timeRemaining / FADE_DURATION; // 1.0 → 0.0
+                // Exponential decay: first 50% barely noticeable, last 20% does the real fade
+                const volume = 0.7 * Math.pow(progress, 3);
+                masterGain.gain.value = volume;
                 if (progress < 0.3) document.body.classList.add('fading');
             }
 
