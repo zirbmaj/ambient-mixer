@@ -679,6 +679,39 @@ body {
     50% { opacity: 1; }
 }
 
+/* Cold start preview reuses shared-mix-preview styles */
+.cold-start-preview {
+    margin: 20px auto 24px;
+    max-width: 260px;
+}
+
+/* Onboarding hint — points at a recommended layer */
+.onboard-hint {
+    position: absolute;
+    top: -24px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    color: var(--accent);
+    letter-spacing: 1px;
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 10;
+    opacity: 0;
+    animation: hintFadeIn 0.5s ease-out 0.2s forwards, tipPulse 2s ease-in-out 0.7s infinite;
+}
+
+@keyframes hintFadeIn {
+    from { opacity: 0; transform: translateX(-50%) translateY(4px); }
+    to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+@keyframes tipPulse {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+}
+
 /* Responsive */
 @media (max-width: 600px) {
     .app {

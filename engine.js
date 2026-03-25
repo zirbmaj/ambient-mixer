@@ -1633,7 +1633,7 @@ setInterval(() => {
     if (hasActive && !mixStartTime) mixStartTime = Date.now();
     if (!hasActive) { mixStartTime = null; shareNudged = false; }
 
-    if (mixStartTime && !shareNudged && Date.now() - mixStartTime > 30000) {
+    if (mixStartTime && !shareNudged && Date.now() - mixStartTime > 60000) {
         const btn = document.getElementById('share-btn');
         if (btn) {
             btn.classList.add('nudge');
@@ -1775,19 +1775,51 @@ try {
         const lastMix = getLastMix();
         const coldMix = lastMix || { rain: 60, cafe: 45, vinyl: 20 };
 
-        // Pre-load VISUALLY only (no audio until user gesture)
+        // Build cold start preview bars on the start overlay (for non-shared visitors)
+        const coldPreview = document.getElementById('cold-start-preview');
+        if (coldPreview) {
+            const mixToShow = lastMix || { rain: 60, cafe: 45, vinyl: 20 };
+            const previewLayers = Object.entries(mixToShow)
+                .map(([id, val]) => {
+                    const l = LAYERS.find(l => l.id === id);
+                    return l ? { name: l.name.toLowerCase(), level: val } : { name: id, level: val };
+                })
+                .sort((a, b) => b.level - a.level);
+
+            previewLayers.forEach(l => {
+                const row = document.createElement('div');
+                row.className = 'smp-row';
+                const label = document.createElement('span');
+                label.className = 'smp-label';
+                label.textContent = l.name;
+                const barOuter = document.createElement('div');
+                barOuter.className = 'smp-bar';
+                const barInner = document.createElement('div');
+                barInner.className = 'smp-fill';
+                barInner.style.width = l.level + '%';
+                barOuter.appendChild(barInner);
+                row.appendChild(label);
+                row.appendChild(barOuter);
+                coldPreview.appendChild(row);
+            });
+        }
+
+        // Pre-load sliders at 0 (they'll animate to target on overlay dismiss)
         Object.entries(coldMix).forEach(([id, val]) => {
             const slider = document.getElementById(`slider-${id}`);
             if (slider) {
-                slider.value = val;
+                slider.value = 0;
                 const card = document.getElementById(`layer-${id}`);
                 if (card) {
                     card.classList.add('active');
                     const valEl = card.querySelector('.layer-val');
-                    if (valEl) valEl.textContent = `${val}%`;
+                    if (valEl) valEl.textContent = '0%';
                 }
             }
         });
+
+        // Store cold mix for animated entry
+        window._coldMixTargets = coldMix;
 
         if (lastMix) {
             const layerNames = Object.keys(lastMix)
@@ -1796,37 +1828,72 @@ try {
             document.querySelector('.tagline').textContent = 'welcome back — tap to resume ' + layerNames;
             if (window.nwlTrack) window.nwlTrack('returning_user', { layers: layerNames });
         } else {
-            document.querySelector('.tagline').textContent = 'slide rain to hear it — or tap anywhere to start';
-
-            // First-visit tooltip pointing at the rain slider
-            if (!localStorage.getItem('drift_onboarded')) {
-                const rainCard = document.getElementById('layer-rain');
-                if (rainCard) {
-                    const tip = document.createElement('div');
-                    tip.style.cssText = 'position:absolute;top:-28px;left:50%;transform:translateX(-50%);font-family:"Space Mono",monospace;font-size:9px;color:rgba(122,138,106,0.8);letter-spacing:1px;white-space:nowrap;animation:tipPulse 2s ease-in-out infinite;pointer-events:none;z-index:10;';
-                    tip.textContent = '↑ slide this';
-                    rainCard.style.position = 'relative';
-                    rainCard.appendChild(tip);
-
-                    const style = document.createElement('style');
-                    style.textContent = '@keyframes tipPulse { 0%,100% { opacity:0.5; } 50% { opacity:1; } }';
-                    document.head.appendChild(style);
-
-                    const clearTip = () => {
-                        tip.remove();
-                        style.remove();
-                        localStorage.setItem('drift_onboarded', 'true');
-                        document.removeEventListener('input', clearTip);
-                    };
-                    document.addEventListener('input', clearTip);
-                    setTimeout(() => { if (tip.parentNode) { tip.remove(); style.remove(); } }, 10000);
-                }
-            }
+            document.querySelector('.tagline').textContent = 'design your soundscape';
         }
 
-        // On first interaction, load the mix properly with audio
+        // On first interaction, load the mix with animated sliders
         document.addEventListener('click', function coldStartPlay() {
             loadPreset(coldMix);
+
+            // Animate sliders from 0 to target over 1.5s
+            Object.entries(coldMix).forEach(([id, val]) => {
+                const slider = document.getElementById(`slider-${id}`);
+                const card = document.getElementById(`layer-${id}`);
+                if (slider && card) {
+                    const fill = card.querySelector('.layer-slider');
+                    if (fill) fill.style.transition = 'none'; // let JS drive
+                    let start = null;
+                    const duration = 1500;
+                    function animateSlider(ts) {
+                        if (!start) start = ts;
+                        const progress = Math.min((ts - start) / duration, 1);
+                        const eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+                        const current = Math.round(eased * val);
+                        slider.value = current;
+                        const valEl = card.querySelector('.layer-val');
+                        if (valEl) valEl.textContent = current + '%';
+                        if (progress < 1) requestAnimationFrame(animateSlider);
+                    }
+                    requestAnimationFrame(animateSlider);
+                }
+            });
+
+            // Fireplace hint — show after 3s if first visit and no interaction yet
+            if (!sessionStorage.getItem('drift_hint_shown') && !localStorage.getItem('drift_onboarded')) {
+                setTimeout(() => {
+                    // Check if user has already interacted with a slider
+                    const anyInteraction = Object.values(layerStates).some(s => s.active && s.volume > 0);
+                    if (anyInteraction && Object.keys(coldMix).every(id => layerStates[id]?.volume === coldMix[id] / 100)) {
+                        // User hasn't changed anything — show hint
+                    } else if (anyInteraction) {
+                        return; // User already exploring
+                    }
+
+                    // Find fireplace (or fallback to a visible layer)
+                    const hintTarget = document.getElementById('layer-fire') || document.getElementById('layer-rain');
+                    if (!hintTarget) return;
+
+                    const targetName = hintTarget.id === 'layer-fire' ? 'fireplace' : 'rain';
+                    const hint = document.createElement('div');
+                    hint.className = 'onboard-hint';
+                    hint.textContent = 'try adding ' + targetName + ' →';
+                    hintTarget.style.position = 'relative';
+                    hintTarget.appendChild(hint);
+                    sessionStorage.setItem('drift_hint_shown', 'true');
+
+                    // Clear on any slider interaction, scroll, or timeout
+                    const clearHint = () => {
+                        if (hint.parentNode) hint.remove();
+                        localStorage.setItem('drift_onboarded', 'true');
+                        document.removeEventListener('input', clearHint);
+                        window.removeEventListener('scroll', clearHint);
+                    };
+                    document.addEventListener('input', clearHint);
+                    window.addEventListener('scroll', clearHint);
+                    setTimeout(clearHint, 15000);
+                }, 3000);
+            }
+
             document.removeEventListener('click', coldStartPlay);
         }, { once: true });
     }
