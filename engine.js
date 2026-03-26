@@ -1557,8 +1557,13 @@ function loadMixFromUrl() {
 
 function shareMix() {
     const url = getMixUrl();
+    const name = generateMixName();
     if (window.nwlTrack) {
-        window.nwlTrack('mix_share', { url });
+        window.nwlTrack('mix_share', { url, method: navigator.canShare ? 'native' : 'clipboard' });
+    }
+    if (navigator.canShare && navigator.canShare({ url })) {
+        navigator.share({ title: name, text: 'check out this drift mix', url }).catch(() => {});
+        return;
     }
     navigator.clipboard.writeText(url).then(() => {
         const btn = document.getElementById('share-btn');
